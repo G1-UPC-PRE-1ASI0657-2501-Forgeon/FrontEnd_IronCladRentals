@@ -1,0 +1,173 @@
+{
+  "brands": [
+    {
+      "id": "f01f",
+      "brand_name": "Toyota"
+    },
+    {
+      "id": "cf84",
+      "brand_name": "Ford"
+    },
+    {
+      "id": "9256",
+      "brand_name": "Honda"
+    },
+    {
+      "id": "28b7",
+      "brand_name": "Audi"
+    },
+    {
+      "id": "8df8",
+      "brand_name": "Mazda"
+    },
+    {
+      "id": "47a9",
+      "brand_name": "Peugeon"
+    },
+    {
+      "id": "6f6c",
+      "brand_name": "asd"
+    }
+  ],
+  "models": [
+    {
+      "id": "fb48",
+      "car_model": "Corolla",
+      "brand_id": "f01f"
+    },
+    {
+      "id": "2c17",
+      "car_model": "Camry",
+      "brand_id": "f01f"
+    },
+    {
+      "id": "38b7",
+      "car_model": "Focus",
+      "brand_id": "cf84"
+    },
+    {
+      "id": "9d5a",
+      "car_model": "Civic",
+      "brand_id": "9256"
+    },
+    {
+      "id": "7339",
+      "car_model": "Q5",
+      "brand_id": "28b7"
+    },
+    {
+      "id": "d95b",
+      "car_model": "CSX5",
+      "brand_id": "8df8"
+    },
+    {
+      "id": "0854",
+      "car_model": "DSA",
+      "brand_id": "47a9"
+    },
+    {
+      "id": "7d59",
+      "car_model": "",
+      "brand_id": "6f6c"
+    }
+  ],
+  "users": [
+    {
+      "id": "7bcb",
+      "names": "Alvaro Pinto",
+      "dni": "87212345",
+      "email": "alvapinto@gmail.com",
+      "phone_num": "47812345",
+      "rol": true,
+      "password": "123456"
+    },
+    {
+      "id": "8a92",
+      "names": "Diego Cano",
+      "dni": "213574897",
+      "email": "canocano@gmail.com",
+      "phone_num": "996694215",
+      "rol": true,
+      "password": "789456"
+    }
+  ],
+  "companies": [
+    {
+      "id": "0333",
+      "name": "IronClad Rentals",
+      "ruc": "1234567890"
+    },
+    {
+      "id": "e0947c0f-72ae-4794-acc6-d4c44b1fc908",
+      "name": "Serendipai",
+      "ruc": "10123456789"
+    },
+    {
+      "id": "6b7226a6-4e82-45d8-8479-e7802f85376b",
+      "name": "Serendipia",
+      "ruc": "10123456789"
+    },
+    {
+      "id": "0dcc7fc1-2919-4d3e-a283-033801de5376",
+      "name": "CanoCano",
+      "ruc": "89756312"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "5db4",
+      "brand_id": "28b7",
+      "model_id": "7339",
+      "passengers": 50,
+      "luggage_capacity": 40,
+      "available": true,
+      "enterprise_id": "0333"
+    },
+    {
+      "id": "da51",
+      "brand_id": "8df8",
+      "model_id": "d95b",
+      "passengers": 10,
+      "luggage_capacity": 53,
+      "available": true,
+      "enterprise_id": "0333"
+    }
+  ],
+  "rentals": [
+    {
+      "id": "1329",
+      "rental_start": "2023-10-01T10:00:00",
+      "rental_end": "2023-10-10T10:00:00",
+      "rental_status": "active",
+      "user_id": "7bcb",
+      "vehicle_id": "6d4f"
+    }
+  ],
+  "pricings": [
+    {
+      "id": "53da",
+      "price": 100,
+      "discount": 10,
+      "vehicle_id": "6d4f"
+    }
+  ],
+  "locations": [
+    {
+      "id": "a6f2",
+      "address": "123 Main St",
+      "city": "New York",
+      "country": "USA",
+      "location_status": "active",
+      "latitude": 40.71,
+      "longitude": -74.01
+    }
+  ],
+  "rental_locations": [
+    {
+      "id": "21df",
+      "rentalLocation_id": 1,
+      "rental_id": "1329",
+      "location_id": "a6f2"
+    }
+  ]
+}
