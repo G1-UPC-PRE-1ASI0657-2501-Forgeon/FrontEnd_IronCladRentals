@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { UserApiService } from "@/shared/services/user-api.service.js";
+import userService from "@/shared/services/user-api.service.js";
 import router from "@/router.js";
 
 export default {
@@ -50,16 +50,12 @@ export default {
     return {
       full_name: "",
       password: "",
-      userApiService: new UserApiService(),
     };
   },
   methods: {
     async login() {
       try {
-        const userApiService = new UserApiService();
-        const response = await userApiService.getAll();
-        const users = response.data;
-
+        const users = await userService.getAll(); // ✅ FIX: no usar new userService()
         const user = users.find((u) => u.names === this.full_name);
 
         if (!user) {
@@ -68,16 +64,13 @@ export default {
         }
 
         if (user.password === this.password) {
-          // Guardar datos básicos
           localStorage.setItem("rol", String(user.rol));
           localStorage.setItem("userId", user.id);
           localStorage.setItem("userName", user.names);
 
-          // Buscar si este usuario ya tiene una compañía asociada
           const userCompanyMap = JSON.parse(localStorage.getItem("userCompanyMap") || "{}");
           const companyId = userCompanyMap[user.id];
 
-          // Si existe, guardar companyId y redirigir al home
           if (companyId) {
             localStorage.setItem("companyId", companyId);
             alert("Login exitoso. Redirigiendo a tu panel.");

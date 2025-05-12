@@ -12,6 +12,8 @@
   "dependencies": {
     "autoprefixer": "^10.4.19",
     "axios": "^1.6.8",
+    "cookie": "^1.0.2",
+    "cookie-signature": "^1.2.2",
     "json-server": "^1.0.0-alpha.23",
     "postcss-import": "^16.1.0",
     "postcss-nested": "^6.0.1",

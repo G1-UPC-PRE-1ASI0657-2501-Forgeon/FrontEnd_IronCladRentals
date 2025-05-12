@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { UserApiService } from "@/shared/services/user-api.service.js";
+import userService from "@/shared/services/user-api.service.js";
 import router from "@/router.js";
 
 export default {
@@ -90,7 +90,6 @@ export default {
       rol: "",
       password: "",
       confirmPassword: "",
-      userApiService: new UserApiService(),
     };
   },
   methods: {
@@ -104,16 +103,24 @@ export default {
         password: this.password,
       };
 
+      console.log("Datos a registrar:", body); // Verificar los datos enviados
+
       try {
-        const response = await this.userApiService.create(body);
-        if (response.status === 201) {
+        const response = await userService.create(body);
+        console.log("Respuesta de la API:", response); // Verificar la respuesta de la API
+
+        // Verificar si la respuesta tiene un id (esto indica que el usuario fue creado)
+        if (response && response.id) {
           alert("Usuario registrado exitosamente");
           await router.push("/login");
         } else {
-          console.error("Error al registrar el usuario");
+          console.error("Error al registrar el usuario: Respuesta no contiene ID");
+          alert("Hubo un error en el registro.");
         }
       } catch (error) {
-        console.error("Error al registrar el usuario:", error);
+        // Aquí registramos el error de forma detallada
+        console.error("Error al registrar el usuario:", error.response ? error.response.data : error.message);
+        alert("Hubo un problema al registrar el usuario. Por favor, intente nuevamente.");
       }
     },
   },

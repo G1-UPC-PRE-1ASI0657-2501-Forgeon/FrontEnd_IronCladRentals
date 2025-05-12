@@ -89,6 +89,60 @@
       "phone_num": "996694215",
       "rol": true,
       "password": "789456"
+    },
+    {
+      "id": "4f61",
+      "names": "Donato",
+      "dni": "567892135",
+      "email": "donato@gmail.com",
+      "phone_num": "78423546",
+      "rol": true,
+      "password": "Macro"
+    },
+    {
+      "id": "0979",
+      "names": "Donato",
+      "dni": "567892135",
+      "email": "donato@gmail.com",
+      "phone_num": "78423546",
+      "rol": true,
+      "password": "445566"
+    },
+    {
+      "id": "8414",
+      "names": "Donato Hola",
+      "dni": "456487921",
+      "email": "donato@gmail.com",
+      "phone_num": "78423546",
+      "rol": true,
+      "password": "445566"
+    },
+    {
+      "id": "67a9",
+      "names": "Pero",
+      "dni": "54987213",
+      "email": "peros@gmail.com",
+      "phone_num": "994513564",
+      "rol": true,
+      "password": "abcdeabcde"
+    },
+    {
+      "id": "1eed",
+      "names": "Diego",
+      "dni": "8888888",
+      "email": "diego@gmail.com",
+      "phone_num": "9945687",
+      "rol": true,
+      "password": "cano"
+    },
+    {
+      "id": "f3a6",
+      "names": "Gael Garcia",
+      "dni": "4672765",
+      "email": "gael@gmail.com",
+      "phone_num": "713542315",
+      "rol": true,
+      "password": "hehe"
     }
   ],
   "companies": [
@@ -111,6 +165,11 @@
       "id": "0dcc7fc1-2919-4d3e-a283-033801de5376",
       "name": "CanoCano",
       "ruc": "89756312"
+    },
+    {
+      "id": "491f0d02-274a-4bc6-a34f-ff9854ffb5c1",
+      "name": "Mannco",
+      "ruc": "7862143789"
     }
   ],
   "vehicles": [

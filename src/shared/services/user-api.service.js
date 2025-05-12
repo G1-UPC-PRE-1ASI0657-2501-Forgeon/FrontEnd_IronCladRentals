@@ -1,47 +1,82 @@
-import axios from 'axios';
+import api from "@/api/api.js";
 
-const http = axios.create({
-    baseURL:'http://localhost:3000/'
-})
-export class UserApiService {
+const userService = {
+    // 🔹 OBTENER TODOS LOS USUARIOS
     async getAll() {
-        return await http.get('/users')
-    }
+        try {
+            const response = await api.get("/users");
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error obteniendo todos los usuarios:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 OBTENER USUARIO POR ID
     async getById(id) {
-        return await http.get('users/'+id)
-    }
-    async create(body) {
-        return await http.post('users',body)
-    }
-    async update(body,id) {
-        return await http.put('users/'+id,body)
-    }
+        try {
+            const response = await api.get(`/users/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error obteniendo usuario por ID:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 CREAR USUARIO
+    async create(userData) {
+        try {
+            const response = await api.post("/users", userData);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error creando usuario:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 ACTUALIZAR USUARIO
+    async update(id, userData) {
+        try {
+            const response = await api.put(`/users/${id}`, userData);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error actualizando usuario:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 ELIMINAR USUARIO
     async delete(id) {
-        return await http.delete('users/'+id)
-    }
-    async getPayments_pendingById(id) {
-        return await http.get('users/payments_pending'+id)
-    }
+        try {
+            await api.delete(`/users/${id}`);
+            console.log("✅ Usuario eliminado correctamente.");
+        } catch (error) {
+            console.error("❌ Error eliminando usuario:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 OBTENER PAGOS PENDIENTES POR ID
+    async getPaymentsPendingById(id) {
+        try {
+            const response = await api.get(`/users/payments_pending/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error obteniendo pagos pendientes:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 LOGIN DE USUARIO
     async login(username, password) {
         try {
-            const response = await http.get('/users');
-            const users = response.data;
-
-            const user = users.find(user => user.name === username);
-
-            if (!user) {
-                throw new Error('Usuario no encontrado');
-            }
-
-            if (user.password === password) {
-                return user;
-            } else {
-                throw new Error('Contraseña incorrecta');
-            }
+            const response = await api.post("/authentication/sign-in", { username, password });
+            return response.data;
         } catch (error) {
-            throw error;
+            console.error("❌ Error en login:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
         }
     }
+};
 
-}
-
+export default userService;
