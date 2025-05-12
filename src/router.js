@@ -6,6 +6,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import thePageNotFoundPage from "@/pages/the-page-not-found.page.vue";
 import theLandlordVehicles from "@/pages/the-landlord-vehicles.vue";
 import TheCompanyRegister from "@/pages/the-company-register.vue";
+import theSearchVehicles from "@/pages/the-search-vehicles.vue";
+import theVehicleDetails from "@/pages/the-vehicle-details.vue";
 
 
 
@@ -18,6 +20,8 @@ const routes = [
     { path: '/company-register', component: TheCompanyRegister },
     { path: '/home', component: theHomePage },
     { path: '/users', component: TheLogin },
+    { path: '/seach-vehicles', component: theSearchVehicles},
+    { path: '/vehicle/:id', component: theVehicleDetails },
     { path: '/:pathMatch(.*)*', component: thePageNotFoundPage }
 ]
 

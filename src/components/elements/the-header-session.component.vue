@@ -11,8 +11,7 @@
       <div class="right-section">
         <router-link to="/home" class="link" aria-label="Home">Home</router-link>
         <router-link v-if="isArrendador" to="/landlord-vehicles" class="link" aria-label="Vehicles">Vehículos</router-link>
-        <router-link v-if="isArrendatario" to="/search" class="link" aria-label="Search">Buscar Vehículo</router-link>
-        <router-link v-if="isArrendatario" to="/my-rentals" class="link" aria-label="My Rentals">Mis Rentas</router-link>
+        <router-link v-if="isArrendatario" to="/seach-vehicles" class="link" aria-label="Search">Busqueda</router-link>
         <button @click="logout" class="button-logout" aria-label="Log out">Log out</button>
       </div>
     </div>
