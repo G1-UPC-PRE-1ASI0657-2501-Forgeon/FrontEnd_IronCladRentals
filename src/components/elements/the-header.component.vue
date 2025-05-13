@@ -20,7 +20,7 @@ export default {
   components: {LanguageSwitcher},
   data() {
     return {
-      companyName: 'AgroSolution'
+      companyName: 'IronClad Rentals'
     };
   },
   methods: {

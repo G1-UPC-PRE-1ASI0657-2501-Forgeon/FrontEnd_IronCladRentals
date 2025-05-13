@@ -55,7 +55,7 @@ export default {
   methods: {
     async login() {
       try {
-        const users = await userService.getAll(); // ✅ FIX: no usar new userService()
+        const users = await userService.getAll();
         const user = users.find((u) => u.names === this.full_name);
 
         if (!user) {
@@ -71,13 +71,20 @@ export default {
           const userCompanyMap = JSON.parse(localStorage.getItem("userCompanyMap") || "{}");
           const companyId = userCompanyMap[user.id];
 
-          if (companyId) {
-            localStorage.setItem("companyId", companyId);
+          if (user.rol === true) {
+            // Usuario es arrendador
+            if (companyId) {
+              localStorage.setItem("companyId", companyId);
+              alert("Login exitoso. Redirigiendo a tu panel.");
+              await router.push("/home");
+            } else {
+              alert("Login exitoso. Completa el registro de tu compañía.");
+              await router.push("/company-register");
+            }
+          } else {
+            // Usuario es arrendatario
             alert("Login exitoso. Redirigiendo a tu panel.");
             await router.push("/home");
-          } else {
-            alert("Login exitoso. Completa el registro de tu compañía.");
-            await router.push("/company-register");
           }
         } else {
           alert("Contraseña incorrecta");

@@ -115,7 +115,7 @@ const es = ({
         alt: 'Imagen'
     },
     mainPage: {
-        welcomeTitle: 'Bienvenidos a AgroSolutions',
+        welcomeTitle: 'Bienvenidos a IronClad Rentals',
         welcomeText: 'Descubre nuestras soluciones innovadoras para el sector agrícola.',
         startButton: 'Comenzar'
     },
