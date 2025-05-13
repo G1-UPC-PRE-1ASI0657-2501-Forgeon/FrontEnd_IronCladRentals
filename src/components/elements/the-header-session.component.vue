@@ -10,6 +10,7 @@
       </div>
       <div class="right-section">
         <router-link to="/home" class="link" aria-label="Home">Home</router-link>
+        <router-link  to="/user-config" class="link" aria-label="User Config">Usuario</router-link>
         <router-link v-if="isArrendador" to="/landlord-vehicles" class="link" aria-label="Vehicles">Mis Vehículos</router-link>
         <router-link v-if="isArrendador" to="/edit" class="link" aria-label="Vehicles">Editar Vehículos</router-link>
         <router-link v-if="isArrendatario" to="/search-vehicles" class="link" aria-label="Search">Busqueda</router-link>

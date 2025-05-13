@@ -8,6 +8,7 @@ import theLandlordVehicles from "@/pages/the-landlord-vehicles.vue";
 import TheCompanyRegister from "@/pages/the-company-register.vue";
 import theSearchVehicles from "@/pages/the-search-vehicles.vue";
 import theVehicleDetails from "@/pages/the-vehicle-details.vue";
+import theUserConfig from "@/pages/the-user-config.vue";
 import thePricingPage from "@/pages/the-pricing.page.vue";
 
 
@@ -23,6 +24,7 @@ const routes = [
     { path: '/users', component: TheLogin },
     { path: '/search-vehicles', component: theSearchVehicles},
     { path: '/vehicle/:id', component: theVehicleDetails },
+    { path: '/user-config', component: theUserConfig },
     { path: '/:pathMatch(.*)*', component: thePageNotFoundPage }
 ]
 
