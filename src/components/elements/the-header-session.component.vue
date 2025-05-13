@@ -12,6 +12,7 @@
         <router-link to="/home" class="link" aria-label="Home">Home</router-link>
         <router-link v-if="isArrendador" to="/landlord-vehicles" class="link" aria-label="Vehicles">Vehículos</router-link>
         <router-link v-if="isArrendatario" to="/seach-vehicles" class="link" aria-label="Search">Busqueda</router-link>
+        <router-link  to="/user-config" class="link" aria-label="User Config">Usuario</router-link>
         <button @click="logout" class="button-logout" aria-label="Log out">Log out</button>
       </div>
     </div>
