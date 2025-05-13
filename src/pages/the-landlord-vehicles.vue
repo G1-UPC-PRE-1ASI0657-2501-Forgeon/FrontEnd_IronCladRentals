@@ -11,39 +11,53 @@
         <Button :label="$t('addVehicle')" class="p-button-success add-vehicle-button" @click="showAddVehicleDialog = true" aria-label="Add Vehicle Button" />
       </div>
 
-      <div class="cards-container">
+      <transition-group name="fade" tag="div" class="cards-container">
         <div v-for="(vehicle, index) in vehicles" :key="vehicle.id" class="card1">
           <div class="p-4 border-round surface-card shadow-2 card-content" :aria-label="'Vehicle Card for ' + getModelName(vehicle.model_id)">
             <div class="flex flex-column align-items-center">
               <Tag :value="vehicle.available ? $t('available') : $t('unavailable')"
                    :severity="vehicle.available ? 'success' : 'danger'"
-                   class="mb-3"
-                   :aria-label="'Status: ' + (vehicle.available ? 'Available' : 'Unavailable')">
+                   class="mb-3">
               </Tag>
               <h2 class="vehicle-title">{{ getBrandName(vehicle.brand_id) }} - {{ getModelName(vehicle.model_id) }}</h2>
               <p class="vehicle-info">{{ $t('passengers') }}: {{ vehicle.passengers }}</p>
               <p class="vehicle-info">{{ $t('luggage') }}: {{ vehicle.luggage_capacity }}</p>
-              <p class="vehicle-info" v-if="vehicle.description">{{ $t('description') }}: {{ vehicle.description }}</p>
-              <p class="vehicle-info" v-if="vehicle.free_text">{{ $t('freeText') }}: {{ vehicle.free_text }}</p>
               <div class="button-group mt-2">
                 <Button :label="vehicle.available ? $t('Mark as Unavailable') : $t('Mark as Available')"
                         @click="toggleAvailability(vehicle)"
                         class="p-button-warning mr-2" />
                 <Button :label="$t('delete')"
                         @click="deleteVehicle(vehicle)"
-                        class="p-button-danger" />
+                        class="p-button-danger mr-2" />
+                <Button
+                    :label="hasPrice(vehicle.id) ? 'Editar datos' : 'Agregar precio'"
+                    class="p-button-info"
+                    @click="goToPricing(vehicle.id)"
+                />
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </transition-group>
 
       <Dialog header="Agregar Vehículo" v-model:visible="showAddVehicleDialog" :closable="true" :modal="true">
         <div class="dialog-content">
-          <InputText v-model="newVehicle.brand_name" placeholder="Marca" class="w-full mb-2" />
-          <InputText v-model="newVehicle.model_name" placeholder="Modelo" class="w-full mb-2" />
-          <InputNumber v-model="newVehicle.passengers" :placeholder="$t('passengers')" class="w-full mb-2" />
-          <InputNumber v-model="newVehicle.luggage_capacity" :placeholder="$t('luggage')" class="w-full mb-2" />
+          <div class="form-group">
+            <label>Marca:</label>
+            <InputText v-model="newVehicle.brand_name" class="w-full mb-3" />
+          </div>
+          <div class="form-group">
+            <label>Modelo:</label>
+            <InputText v-model="newVehicle.model_name" class="w-full mb-3" />
+          </div>
+          <div class="form-group">
+            <label>{{ $t('passengers') }}:</label>
+            <InputNumber v-model="newVehicle.passengers" class="w-full mb-3" />
+          </div>
+          <div class="form-group">
+            <label>{{ $t('luggage') }}:</label>
+            <InputNumber v-model="newVehicle.luggage_capacity" class="w-full mb-3" />
+          </div>
           <Button :label="$t('add')" @click="handleAddVehicle" class="p-button-success mt-2 w-full" />
         </div>
       </Dialog>
@@ -56,6 +70,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Tag from 'primevue/tag';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
@@ -66,6 +81,7 @@ import TheFooter from "@/components/elements/the-footer.component.vue";
 import { VehicleApiService } from "@/shared/services/vehicle-api.service.js";
 import { BrandApiService } from "@/shared/services/brand-api.service.js";
 import { ModelApiService } from "@/shared/services/model-api.service.js";
+import { PricingApiService } from '@/shared/services/pricing-api.service.js';
 
 export default {
   name: 'LandlordVehicles',
@@ -79,9 +95,11 @@ export default {
     TheFooter
   },
   setup() {
+    const router = useRouter();
     const vehicles = ref([]);
     const brands = ref([]);
     const models = ref([]);
+    const prices = ref([]);
     const showAddVehicleDialog = ref(false);
     const newVehicle = ref({
       brand_name: '',
@@ -89,23 +107,24 @@ export default {
       passengers: 0,
       luggage_capacity: 0,
       available: true,
-      description: '',
-      free_text: ''
     });
 
     const vehicleApiService = new VehicleApiService();
     const brandApiService = new BrandApiService();
     const modelApiService = new ModelApiService();
+    const priceApiService = new PricingApiService();
 
     const fetchAll = async () => {
-      const [v, b, m] = await Promise.all([
+      const [v, b, m, p] = await Promise.all([
         vehicleApiService.getAll(),
         brandApiService.getAll(),
-        modelApiService.getAll()
+        modelApiService.getAll(),
+        priceApiService.getAll()
       ]);
       vehicles.value = v.data;
       brands.value = b.data;
       models.value = m.data;
+      prices.value = p.data;
     };
 
     const getBrandName = (id) => {
@@ -116,6 +135,14 @@ export default {
     const getModelName = (id) => {
       const model = models.value.find(m => m.id === id);
       return model ? model.car_model : 'Desconocido';
+    };
+
+    const hasPrice = (vehicleId) => {
+      return prices.value.some(p => p.vehicle_id === vehicleId);
+    };
+
+    const goToPricing = (vehicleId) => {
+      router.push(`/landlord/vehicles/pricing/${vehicleId}`);
     };
 
     const findOrCreateBrand = async (name) => {
@@ -142,8 +169,7 @@ export default {
       try {
         const brand_id = await findOrCreateBrand(newVehicle.value.brand_name);
         const model_id = await findOrCreateModel(newVehicle.value.model_name, brand_id);
-
-        const companyId = localStorage.getItem('companyId'); // Obtener el companyId desde localStorage
+        const companyId = localStorage.getItem('companyId');
 
         if (!companyId) {
           console.error('No se encontró el ID de la compañía en el localStorage');
@@ -156,7 +182,6 @@ export default {
           passengers: newVehicle.value.passengers,
           luggage_capacity: newVehicle.value.luggage_capacity,
           available: newVehicle.value.available,
-          free_text: newVehicle.value.free_text,
           companyId: companyId
         });
 
@@ -166,7 +191,6 @@ export default {
         console.error('Error al agregar vehículo:', error);
       }
     };
-
 
     const deleteVehicle = async (vehicle) => {
       try {
@@ -195,31 +219,31 @@ export default {
       deleteVehicle,
       toggleAvailability,
       getBrandName,
-      getModelName
+      getModelName,
+      hasPrice,
+      goToPricing
     };
   }
 };
 </script>
 
 <style scoped>
-/* Título "Mis Vehículos" */
 .page-title {
   text-align: center;
   font-size: 2.5rem;
   color: #1a493f;
   font-weight: bold;
   position: fixed;
-  top: 8%; /* Ubicado debajo del header */
+  top: 8%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
   margin: 0;
 }
 
-/* Botón "Agregar Vehículo" */
 .add-vehicle-container {
   position: fixed;
-  top: 20%; /* Ubicado debajo del título */
+  top: 20%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -243,10 +267,9 @@ export default {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenedor de las tarjetas */
 .cards-container {
   position: fixed;
-  top: 32%; /* Ubicado debajo del botón de agregar vehículo */
+  top: 32%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -259,40 +282,48 @@ export default {
   z-index: 1;
 }
 
-/* Card individual */
 .card1 {
-  width: 300px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease;
+  width: 320px;
+  background: linear-gradient(145deg, #f9f9f9, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card1:hover {
-  transform: translateY(-5px);
+  transform: scale(1.02);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.15);
 }
 
 .card-content {
-  padding: 20px;
+  padding: 25px;
+  text-align: center;
 }
 
 .vehicle-title {
-  font-size: 1.4rem;
-  color: #333;
-  margin-bottom: 10px;
-  text-align: center;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2a2a2a;
+  margin-bottom: 12px;
 }
 
 .vehicle-info {
   font-size: 1rem;
-  color: #555;
-  margin: 8px 0;
-  text-align: center;
+  color: #666;
+  margin: 6px 0;
 }
 
-/* Footer */
+.dialog-content .form-group {
+  margin-bottom: 1rem;
+}
+
+.dialog-content label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  display: block;
+  color: #444;
+}
+
 footer {
   background-color: #4f4d4d;
   padding: 10px 0;
@@ -306,11 +337,10 @@ footer {
   z-index: 100;
 }
 
-/* Contenedor principal para centrar todo el contenido */
 .content {
   position: relative;
-  z-index: 0; /* Para que todo quede por debajo de los elementos con position fixed */
-  padding-bottom: 100px; /* Ajuste para dejar espacio para el footer */
+  z-index: 0;
+  padding-bottom: 100px;
 }
 
 header {
@@ -321,4 +351,12 @@ header {
   z-index: 100;
 }
 
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
 </style>

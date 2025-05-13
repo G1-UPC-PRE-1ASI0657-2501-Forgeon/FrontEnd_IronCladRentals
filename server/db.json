@@ -27,6 +27,18 @@
     {
       "id": "6f6c",
       "brand_name": "asd"
+    },
+    {
+      "id": "f0a3",
+      "brand_name": "Wolkswagen"
+    },
+    {
+      "id": "8c4b",
+      "brand_name": "SADADGSA"
+    },
+    {
+      "id": "5850",
+      "brand_name": "asdsad"
     }
   ],
   "models": [
@@ -69,6 +81,21 @@
       "id": "7d59",
       "car_model": "",
       "brand_id": "6f6c"
+    },
+    {
+      "id": "f0ce",
+      "car_model": "Passat",
+      "brand_id": "f0a3"
+    },
+    {
+      "id": "f471",
+      "car_model": "dsadsabdsahj",
+      "brand_id": "8c4b"
+    },
+    {
+      "id": "7fef",
+      "car_model": "asdsad",
+      "brand_id": "5850"
     }
   ],
   "users": [
@@ -143,6 +170,24 @@
       "phone_num": "713542315",
       "rol": true,
       "password": "hehe"
+    },
+    {
+      "id": "1c57",
+      "names": "Kyle",
+      "dni": "84235278",
+      "email": "kyle@gmail.com",
+      "phone_num": "99451237",
+      "rol": false,
+      "password": "true"
+    },
+    {
+      "id": "604e",
+      "names": "Jose",
+      "dni": "74512375",
+      "email": "jose@gmail.com",
+      "phone_num": "9945687",
+      "rol": true,
+      "password": "hola"
     }
   ],
   "companies": [
@@ -170,6 +215,11 @@
       "id": "491f0d02-274a-4bc6-a34f-ff9854ffb5c1",
       "name": "Mannco",
       "ruc": "7862143789"
+    },
+    {
+      "id": "e3cb7265-3a18-42dc-8f68-06ff791932c0",
+      "name": "HolaCompany",
+      "ruc": "8753571345"
     }
   ],
   "vehicles": [
@@ -183,13 +233,13 @@
       "enterprise_id": "0333"
     },
     {
-      "id": "da51",
-      "brand_id": "8df8",
-      "model_id": "d95b",
-      "passengers": 10,
-      "luggage_capacity": 53,
+      "id": "6ee9",
+      "brand_id": "f0a3",
+      "model_id": "f0ce",
+      "passengers": 5,
+      "luggage_capacity": 6,
       "available": true,
-      "enterprise_id": "0333"
+      "companyId": "6b7226a6-4e82-45d8-8479-e7802f85376b"
     }
   ],
   "rentals": [
@@ -206,8 +256,17 @@
     {
       "id": "53da",
       "price": 100,
-      "discount": 10,
       "vehicle_id": "6d4f"
+    },
+    {
+      "id": "f741",
+      "vehicle_id": "5db4",
+      "price": 100
+    },
+    {
+      "id": "de90",
+      "vehicle_id": "6ee9",
+      "price": 50
     }
   ],
   "locations": [
