@@ -2,12 +2,15 @@ import axios from "axios";
 import userService from "@/shared/services/user-api.service.js";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:5162",
+        withCredentials: true, // ✅ para que mande/reciba cookies
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
     },
 });
+
+
 
 // El interceptor se puede quitar si no gestionas tokens o credenciales
 axios.interceptors.response.use(
