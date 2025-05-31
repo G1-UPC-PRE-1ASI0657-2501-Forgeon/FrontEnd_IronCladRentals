@@ -228,7 +228,7 @@ export default {
 
 <style scoped>
 .landlord-vehicles {
-  background: linear-gradient(to bottom right, #e6f4ea, #c3eac7);
+  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
   min-height: 100vh;
   padding-top: 100px;
   position: fixed;
@@ -241,7 +241,7 @@ export default {
 .page-title {
   text-align: center;
   font-size: 2.5rem;
-  color: #2d6a4f;
+  color: #08351a;
   font-weight: bold;
   position: fixed;
   top: 8%;

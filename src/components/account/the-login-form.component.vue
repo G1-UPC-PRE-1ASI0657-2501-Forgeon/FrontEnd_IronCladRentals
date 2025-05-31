@@ -76,7 +76,7 @@ export default {
             if (companyId) {
               localStorage.setItem("companyId", companyId);
               alert("Login exitoso. Redirigiendo a tu panel.");
-              await router.push("/home");
+              await router.push("/landlord-vehicles");
             } else {
               alert("Login exitoso. Completa el registro de tu compañía.");
               await router.push("/company-register");
@@ -84,7 +84,7 @@ export default {
           } else {
             // Usuario es arrendatario
             alert("Login exitoso. Redirigiendo a tu panel.");
-            await router.push("/home");
+            await router.push("/landlord-vehicles");
           }
         } else {
           alert("Contraseña incorrecta");

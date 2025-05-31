@@ -19,7 +19,7 @@
     <!-- ✅ Mostrar solo si hay un vehículo seleccionado -->
     <div v-if="selectedVehicle" class="vehicle-info-container">
       <div class="vehicle-card">
-        <h2 class="text-xl font-semibold mb-2">Datos del Vehículo</h2>
+        <h2 class="subtitle">Datos del Vehículo</h2>
         <p><strong>Marca:</strong> {{ selectedVehicle.brandName }}</p>
         <p><strong>Modelo:</strong> {{ selectedVehicle.modelName }}</p>
         <p><strong>Equipaje (kg):</strong> {{ selectedVehicle.luggage_capacity }}</p>
@@ -29,14 +29,12 @@
 
       <div class="form-card">
         <div class="form-group">
-          <label class="block mb-2 font-medium">Precio por día </label>
-          <InputText v-model="price" type="number" class="w-full" />
+          <label class="form-label">Precio por día</label>
+          <InputText v-model="price" type="number" class="form-input" />
         </div>
-        <Button label="Guardar Precio" class="w-full" @click="savePricing" />
+        <Button label="Guardar Precio" class="save-button" @click="savePricing" />
       </div>
     </div>
-
-
   </div>
   <footer>
     <TheFooter />
@@ -163,20 +161,36 @@ watch(
 </script>
 
 <style scoped>
+
+
+
 .pricing-container {
-  padding: 120px 40px 80px;
-  max-width: 1000px;
+  padding: 120px 20px 100px;
+  max-width: 100%;
   margin: auto;
   text-align: center;
+  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
+  min-height: 100vh;
+  box-sizing: border-box;
   position: fixed;
-  bottom: 200px;
+  top: 0;
   left: 0;
   right: 0;
+  z-index: 100;
 }
 
 .title {
-  font-size: 2rem;
-  margin-bottom: 20px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1b4332;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2d6a4f;
 }
 
 .vehicle-dropdown {
@@ -187,26 +201,70 @@ watch(
 
 .vehicle-info-container {
   display: flex;
-  justify-content: space-around;
-  gap: 30px;
+  justify-content: center;
+  gap: 40px;
   flex-wrap: wrap;
   animation: fadeIn 0.5s ease-in-out;
+
+
 }
 
 .vehicle-card,
 .form-card {
   flex: 1;
   min-width: 300px;
-  padding: 20px;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  padding: 25px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
   animation: fadeUp 0.4s ease-in-out;
+  transition: transform 0.3s;
+  background: linear-gradient(90deg, #eaffda, #ffffff);
+
+
+}
+
+.vehicle-card:hover,
+.form-card:hover {
+  transform: translateY(-5px);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-align: left;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #1b4332;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.save-button {
+  width: 100%;
+  background-color: #2d6a4f;
+  border: none;
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+  background-color: #1b4332;
 }
 
 @keyframes fadeIn {
@@ -220,11 +278,11 @@ watch(
 }
 
 footer {
-  background-color: #4f4d4d;
+  background-color: #1b4332;
   padding: 10px 0;
   font-size: 15px;
   line-height: 24px;
-  color: #737373;
+  color: #d8f3dc;
   position: fixed;
   bottom: 0;
   left: 0;
