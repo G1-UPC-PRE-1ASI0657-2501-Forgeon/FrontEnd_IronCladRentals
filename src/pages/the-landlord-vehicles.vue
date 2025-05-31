@@ -4,11 +4,10 @@
       <TheHeaderSession />
     </header>
     <div class="content">
-
       <h1 class="page-title">Mis Vehículos</h1>
 
       <div class="add-vehicle-container">
-        <Button :label="$t('addVehicle')" class="p-button-success add-vehicle-button" @click="showAddVehicleDialog = true" aria-label="Add Vehicle Button" />
+        <Button :label="$t('Añadir Vehiculo')" class="p-button-success add-vehicle-button" @click="showAddVehicleDialog = true" aria-label="Add Vehicle Button" />
       </div>
 
       <transition-group name="fade" tag="div" class="cards-container">
@@ -20,8 +19,8 @@
                    class="mb-3">
               </Tag>
               <h2 class="vehicle-title">{{ getBrandName(vehicle.brand_id) }} - {{ getModelName(vehicle.model_id) }}</h2>
-              <p class="vehicle-info">{{ $t('passengers') }}: {{ vehicle.passengers }}</p>
-              <p class="vehicle-info">{{ $t('luggage') }}: {{ vehicle.luggage_capacity }}</p>
+              <p class="vehicle-info">{{ $t('Pasajeros') }}: {{ vehicle.passengers }}</p>
+              <p class="vehicle-info">{{ $t('Equipaje (kg)') }}: {{ vehicle.luggage_capacity }}</p>
               <div class="button-group mt-2">
                 <Button :label="vehicle.available ? $t('Mark as Unavailable') : $t('Mark as Available')"
                         @click="toggleAvailability(vehicle)"
@@ -51,11 +50,11 @@
             <InputText v-model="newVehicle.model_name" class="w-full mb-3" />
           </div>
           <div class="form-group">
-            <label>{{ $t('passengers') }}:</label>
+            <label>{{ $t('Pasajeros') }}:</label>
             <InputNumber v-model="newVehicle.passengers" class="w-full mb-3" />
           </div>
           <div class="form-group">
-            <label>{{ $t('luggage') }}:</label>
+            <label>{{ $t('Equipaje (kg)') }}:</label>
             <InputNumber v-model="newVehicle.luggage_capacity" class="w-full mb-3" />
           </div>
           <Button :label="$t('add')" @click="handleAddVehicle" class="p-button-success mt-2 w-full" />
@@ -228,10 +227,21 @@ export default {
 </script>
 
 <style scoped>
+.landlord-vehicles {
+  background: linear-gradient(to bottom right, #e6f4ea, #c3eac7);
+  min-height: 100vh;
+  padding-top: 100px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
 .page-title {
   text-align: center;
   font-size: 2.5rem;
-  color: #1a493f;
+  color: #2d6a4f;
   font-weight: bold;
   position: fixed;
   top: 8%;
@@ -284,7 +294,7 @@ export default {
 
 .card1 {
   width: 320px;
-  background: linear-gradient(145deg, #f9f9f9, #ffffff);
+  background: linear-gradient(135deg, #d8f3dc, #ffffff);
   border-radius: 16px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -303,13 +313,13 @@ export default {
 .vehicle-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2a2a2a;
+  color: #1b4332;
   margin-bottom: 12px;
 }
 
 .vehicle-info {
   font-size: 1rem;
-  color: #666;
+  color: #407148;
   margin: 6px 0;
 }
 
@@ -321,11 +331,11 @@ export default {
   font-weight: 600;
   margin-bottom: 0.3rem;
   display: block;
-  color: #444;
+  color: #1d3a27;
 }
 
 footer {
-  background-color: #4f4d4d;
+  background-color: #1a1a1a;
   padding: 10px 0;
   font-size: 15px;
   line-height: 24px;

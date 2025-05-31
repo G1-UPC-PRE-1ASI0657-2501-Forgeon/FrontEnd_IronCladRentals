@@ -5,15 +5,15 @@
 
       <div class="form-group">
         <div class="input-label">
-          <label for="email">{{ $t('login.email') }}:</label>
+          <label for="full_name">{{ $t('login.full_name') }}:</label>
         </div>
         <div class="input-field">
           <input
               type="text"
-              id="email"
-              v-model="email"
+              id="full_name"
+              v-model="full_name"
               required
-              :aria-label="$t('login.email')"
+              :aria-label="$t('login.full_name')"
           />
         </div>
       </div>
@@ -48,49 +48,52 @@ export default {
   name: "TheLoginForm",
   data() {
     return {
-      email: "",
+      full_name: "",
       password: "",
     };
   },
   methods: {
     async login() {
       try {
-        const credentials = {
-          email: this.email,
-          password: this.password,
-        };
-
-        // 🔐 1. Iniciar sesión y guardar cookie en backend
-        const loginResponse = await userService.loginUser(credentials);
-
-        if (loginResponse.status !== 200) {
-          alert("Usuario o contraseña incorrectos.");
-          return;
-        }
-
-        // 🔍 2. Obtener datos del usuario autenticado desde la cookie
-        const user = await userService.getInfoUser();
+        const users = await userService.getAll();
+        const user = users.find((u) => u.names === this.full_name);
 
         if (!user) {
-          alert("Sesión no válida o expirada.");
+          alert("Usuario no encontrado");
           return;
         }
 
-        // 🚀 3. Redirigir según el rol (true = arrendador, false = arrendatario)
-        if (user.role === true) {
-          alert("Login exitoso como arrendador. Redirigiendo...");
-          await router.push("/company-register");
-        } else {
-          alert("Login exitoso como arrendatario. Redirigiendo...");
-          await router.push("/home");
-        }
+        if (user.password === this.password) {
+          localStorage.setItem("rol", String(user.rol));
+          localStorage.setItem("userId", user.id);
+          localStorage.setItem("userName", user.names);
 
+          const userCompanyMap = JSON.parse(localStorage.getItem("userCompanyMap") || "{}");
+          const companyId = userCompanyMap[user.id];
+
+          if (user.rol === true) {
+            // Usuario es arrendador
+            if (companyId) {
+              localStorage.setItem("companyId", companyId);
+              alert("Login exitoso. Redirigiendo a tu panel.");
+              await router.push("/home");
+            } else {
+              alert("Login exitoso. Completa el registro de tu compañía.");
+              await router.push("/company-register");
+            }
+          } else {
+            // Usuario es arrendatario
+            alert("Login exitoso. Redirigiendo a tu panel.");
+            await router.push("/home");
+          }
+        } else {
+          alert("Contraseña incorrecta");
+        }
       } catch (error) {
-        console.error("❌ Error en login:", error);
-        alert("Ocurrió un error al iniciar sesión.");
+        console.error("Error en login:", error);
+        alert("Ocurrió un error al iniciar sesión");
       }
     },
-
     async register() {
       await router.push("/register");
     },
@@ -106,28 +109,21 @@ export default {
   max-width: 400px;
   width: 100%;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  color: #5c8677;
 }
 
 h2 {
   text-align: center;
   margin-bottom: 20px;
-    color: #5c8677;
-
 }
 
 .form-group {
   margin-bottom: 20px;
   display: flex;
   align-items: center;
-    color: #5c8677;
-
 }
 
 .input-label {
   flex: 1;
-    color: #5c8677;
-
 }
 
 .input-field {

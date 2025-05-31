@@ -8,7 +8,7 @@
           <label for="names">Nombre completo:</label>
         </div>
         <div class="input-field">
-          <pv-input-text type="text" id="names" v-model="name" required aria-label="Ingrese su nombre completo" />
+          <pv-input-text type="text" id="names" v-model="names" required aria-label="Ingrese su nombre completo" />
         </div>
       </div>
 
@@ -45,9 +45,9 @@
         </div>
         <div class="input-field">
           <select id="rol" v-model="rol" required aria-label="Seleccione su rol">
-            <option disabled value="">Seleccionar rol</option>
-            <option :value="true">Arrendador</option>
-            <option :value="false">Arrendatario</option>
+            <option value="">Seleccionar rol</option>
+            <option value="true">Arrendador</option>
+            <option value="false">Arrendatario</option>
           </select>
         </div>
       </div>
@@ -83,48 +83,42 @@ export default {
   name: "TheRegisterForm",
   data() {
     return {
-      name: "",
+      names: "",
       dni: "",
       email: "",
       phone: "",
-      rol: "", // será booleano gracias a :value en el select
+      rol: "",
       password: "",
       confirmPassword: "",
     };
   },
   methods: {
     async register() {
-      if (!this.name || !this.dni || !this.email || !this.phone || this.rol === "" || !this.password || !this.confirmPassword) {
-        alert("Por favor complete todos los campos.");
-        return;
-      }
-
-      if (this.password !== this.confirmPassword) {
-        alert("Las contraseñas no coinciden.");
-        return;
-      }
-
       const body = {
-        email: this.email,
-        password: this.password,
-        name: this.name,
+        names: this.names,
         dni: this.dni,
-        phone: this.phone,
-        role: this.rol, // ahora es booleano
+        email: this.email,
+        phone_num: this.phone,
+        rol: this.rol === "true", // Convertir a booleano
+        password: this.password,
       };
 
-      console.log("Datos a registrar:", body); // Para debug
+      console.log("Datos a registrar:", body); // Verificar los datos enviados
 
       try {
         const response = await userService.create(body);
-        console.log("Respuesta de la API:", response);
-        if (response) {
+        console.log("Respuesta de la API:", response); // Verificar la respuesta de la API
+
+        // Verificar si la respuesta tiene un id (esto indica que el usuario fue creado)
+        if (response && response.id) {
           alert("Usuario registrado exitosamente");
           await router.push("/login");
         } else {
+          console.error("Error al registrar el usuario: Respuesta no contiene ID");
           alert("Hubo un error en el registro.");
         }
       } catch (error) {
+        // Aquí registramos el error de forma detallada
         console.error("Error al registrar el usuario:", error.response ? error.response.data : error.message);
         alert("Hubo un problema al registrar el usuario. Por favor, intente nuevamente.");
       }
@@ -141,7 +135,6 @@ export default {
   max-width: 400px;
   width: 100%;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  color: #5c8677;
 }
 
 h2 {
@@ -157,7 +150,6 @@ h2 {
 
 .input-label {
   flex: 1;
-  color: #5c8677;
 }
 
 .input-field {
@@ -177,7 +169,7 @@ select {
   width: 100%;
   padding: 15px;
   border: none;
-  border-bottom: 1px solid #757575;
+  border-bottom: 1px solid #ccc;
   outline: none;
   font-size: 16px;
 }
