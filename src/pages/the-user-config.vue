@@ -45,7 +45,14 @@
 
             <div class="button-group">
               <button class="action-button primary bounce" type="submit">Guardar Cambios</button>
-              <button class="action-button secondary" v-if="!user.rol" type="button">Adicional</button>
+              <button
+                  class="action-button secondary"
+                  v-if="!user.rol"
+                  type="button"
+                  @click="goToPaymentMethods"
+              >
+                Método de Pago
+              </button>
             </div>
           </form>
         </section>
@@ -75,6 +82,7 @@
 
 <script>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import userService from '@/shared/services/user-api.service.js';
 import TheHeaderSession from '@/components/elements/the-header-session.component.vue';
 import TheFooter from '@/components/elements/the-footer.component.vue';
@@ -86,6 +94,7 @@ export default {
     TheFooter,
   },
   setup() {
+    const router = useRouter();
     const user = ref({
       names: '',
       dni: '',
@@ -176,6 +185,10 @@ export default {
           });
     };
 
+    const goToPaymentMethods = () => {
+      router.push('/payment-methods');
+    };
+
     fetchUserData();
 
     return {
@@ -186,6 +199,7 @@ export default {
       updateUser,
       changePassword,
       iconHover,
+      goToPaymentMethods,
     };
   },
 };
