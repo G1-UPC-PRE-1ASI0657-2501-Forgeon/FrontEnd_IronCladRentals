@@ -19,6 +19,17 @@
             {{ brand.brand_name }}
           </option>
         </select>
+        <div class="price-filter">
+          <label for="priceRange">Precio máx: S/ {{ maxPrice }}</label>
+          <input
+              id="priceRange"
+              type="range"
+              min="50"
+              :max="realMaxPrice"
+              v-model="maxPrice"
+              step="10"
+          />
+        </div>
       </div>
       <transition-group name="card" tag="div" class="cards-container">
         <div
@@ -31,12 +42,16 @@
             @keyup.enter="$router.push(`/vehicle/${vehicle.id}`)"
         >
           <div class="card-content">
+            <img :src="vehicle.url" alt="Imagen del vehículo" class="vehicle-img" />
             <h2 class="vehicle-title">{{ getBrandName(vehicle.brand_id) }} - {{ getModelName(vehicle.model_id) }}</h2>
             <p class="vehicle-info">
               <span>🚗 Pasajeros:</span> {{ vehicle.passengers }}
             </p>
             <p class="vehicle-info">
               <span>🧳 Equipaje:</span> {{ vehicle.luggage_capacity }}
+            </p>
+            <p class="vehicle-price">
+              <span>💵 Precio:</span> {{ getVehiclePrice(vehicle.id) }}
             </p>
           </div>
         </div>
@@ -55,6 +70,7 @@ import TheFooter from "@/components/elements/the-footer.component.vue";
 import { VehicleApiService } from "@/shared/services/vehicle-api.service.js";
 import { BrandApiService } from "@/shared/services/brand-api.service.js";
 import { ModelApiService } from "@/shared/services/model-api.service.js";
+import { PricingApiService } from "@/shared/services/pricing-api.service.js";
 
 export default {
   name: "SearchVehicles",
@@ -66,22 +82,34 @@ export default {
     const vehicles = ref([]);
     const brands = ref([]);
     const models = ref([]);
+    const pricings = ref([]);
     const searchQuery = ref("");
     const selectedBrand = ref("");
+    const minPrice = ref(50);
+    const maxPrice = ref(1000);
 
     const vehicleApiService = new VehicleApiService();
     const brandApiService = new BrandApiService();
     const modelApiService = new ModelApiService();
+    const pricingApiService = new PricingApiService();
+
+    const realMaxPrice = computed(() => {
+      if (!pricings.value.length) return 1000;
+      return Math.max(...pricings.value.map(p => p.price));
+    });
 
     const fetchAll = async () => {
-      const [v, b, m] = await Promise.all([
+      const [v, b, m, p] = await Promise.all([
         vehicleApiService.getAll(),
         brandApiService.getAll(),
         modelApiService.getAll(),
+        pricingApiService.getAll(),
       ]);
       vehicles.value = v.data.filter((vehicle) => vehicle.available);
       brands.value = b.data;
       models.value = m.data;
+      pricings.value = p.data;
+      maxPrice.value = realMaxPrice.value;
     };
 
     const getBrandName = (id) => {
@@ -94,8 +122,20 @@ export default {
       return model ? model.car_model : "Desconocido";
     };
 
+    const getVehiclePrice = (vehicleId) => {
+      const pricing = pricings.value.find((p) => p.vehicle_id === vehicleId);
+      return pricing ? `S/ ${pricing.price}` : "No disponible";
+    };
+
+    const getVehiclePriceNumber = (vehicleId) => {
+      const pricing = pricings.value.find((p) => p.vehicle_id === vehicleId);
+      return pricing ? pricing.price : null;
+    };
+
     const filteredVehicles = computed(() => {
       return vehicles.value.filter((vehicle) => {
+        const price = getVehiclePriceNumber(vehicle.id);
+        const matchesPrice = price !== null && price >= minPrice.value && price <= maxPrice.value;
         const matchesSearch =
             !searchQuery.value ||
             getModelName(vehicle.model_id)
@@ -103,7 +143,7 @@ export default {
                 .includes(searchQuery.value.toLowerCase());
         const matchesBrand =
             !selectedBrand.value || vehicle.brand_id === selectedBrand.value;
-        return matchesSearch && matchesBrand;
+        return matchesSearch && matchesBrand && matchesPrice;
       });
     });
 
@@ -117,6 +157,10 @@ export default {
       filteredVehicles,
       getBrandName,
       getModelName,
+      getVehiclePrice,
+      minPrice,
+      maxPrice,
+      realMaxPrice
     };
   },
 };
@@ -125,8 +169,8 @@ export default {
 <style scoped>
 .content {
   position: fixed;
-  top: 60px; /* altura del header */
-  bottom: 50px; /* altura del footer */
+  top: 60px;
+  bottom: 100px;
   left: 0;
   right: 0;
   padding: 25px 20px;
@@ -202,6 +246,21 @@ export default {
   outline: none;
 }
 
+.price-filter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 180px;
+  font-size: 1rem;
+  color: #356635;
+  font-weight: 600;
+  gap: 4px;
+}
+.price-filter input[type="range"] {
+  width: 140px;
+  accent-color: #217a21;
+}
+
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -232,7 +291,6 @@ export default {
   overflow: hidden;
 }
 
-/* Animaciones para cards usando transition-group */
 .card-enter-from,
 .card-leave-to {
   opacity: 0;
@@ -278,6 +336,17 @@ export default {
   text-align: center;
 }
 
+.vehicle-img {
+  width: 100%;
+  max-width: 220px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(127, 168, 127, 0.18);
+  background: #f2faf2;
+}
+
 .vehicle-title {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
@@ -300,9 +369,21 @@ export default {
   letter-spacing: 0.01em;
 }
 
+.vehicle-price {
+  font-size: 1.15rem;
+  color: #217a21;
+  font-weight: 700;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.01em;
+}
+
 footer {
   background-color: #496b49;
-  padding: 12px 0;
+  padding: 18px 0 16px 0;
   font-size: 14px;
   line-height: 22px;
   color: #e0f2e0;
