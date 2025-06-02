@@ -19,12 +19,15 @@
     <!-- ✅ Mostrar solo si hay un vehículo seleccionado -->
     <div v-if="selectedVehicle" class="vehicle-info-container">
       <div class="vehicle-card">
+
         <h2 class="subtitle">Datos del Vehículo</h2>
         <p><strong>Marca:</strong> {{ selectedVehicle.brandName }}</p>
         <p><strong>Modelo:</strong> {{ selectedVehicle.modelName }}</p>
         <p><strong>Equipaje (kg):</strong> {{ selectedVehicle.luggage_capacity }}</p>
         <p><strong>Pasajeros:</strong> {{ selectedVehicle.passengers }}</p>
         <p><strong>Disponible:</strong> {{ selectedVehicle.available }}</p>
+        <img :src="selectedVehicle.url" alt="Imagen del vehículo" class="vehicle-image mb-3" v-if="selectedVehicle.url" />
+
       </div>
 
       <div class="form-card">
@@ -191,6 +194,14 @@ watch(
   font-weight: 600;
   margin-bottom: 1rem;
   color: #2d6a4f;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .vehicle-dropdown {

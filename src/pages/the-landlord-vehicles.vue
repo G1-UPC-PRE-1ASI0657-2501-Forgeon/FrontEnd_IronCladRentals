@@ -7,20 +7,28 @@
       <h1 class="page-title">Mis Vehículos</h1>
 
       <div class="add-vehicle-container">
-        <Button :label="$t('Añadir Vehiculo')" class="p-button-success add-vehicle-button" @click="showAddVehicleDialog = true" aria-label="Add Vehicle Button" />
+        <Button :label="$t('Añadir Vehiculo')" class="p-button-success add-vehicle-button" @click="showAddVehicleDialog = true" />
       </div>
 
       <transition-group name="fade" tag="div" class="cards-container">
         <div v-for="(vehicle, index) in vehicles" :key="vehicle.id" class="card1">
-          <div class="p-4 border-round surface-card shadow-2 card-content" :aria-label="'Vehicle Card for ' + getModelName(vehicle.model_id)">
+          <div class="p-4 border-round surface-card shadow-2 card-content">
             <div class="flex flex-column align-items-center">
+              <!-- Imagen -->
+              <img :src="vehicle.url" alt="Imagen del vehículo" class="vehicle-image mb-3" v-if="vehicle.url" />
+
+              <!-- Tag de disponibilidad -->
               <Tag :value="vehicle.available ? $t('available') : $t('unavailable')"
                    :severity="vehicle.available ? 'success' : 'danger'"
-                   class="mb-3">
-              </Tag>
+                   class="mb-3" />
+              <!-- Marca y modelo -->
               <h2 class="vehicle-title">{{ getBrandName(vehicle.brand_id) }} - {{ getModelName(vehicle.model_id) }}</h2>
+
+              <!-- Info -->
               <p class="vehicle-info">{{ $t('Pasajeros') }}: {{ vehicle.passengers }}</p>
               <p class="vehicle-info">{{ $t('Equipaje (kg)') }}: {{ vehicle.luggage_capacity }}</p>
+
+              <!-- Botones -->
               <div class="button-group mt-2">
                 <Button :label="vehicle.available ? $t('Mark as Unavailable') : $t('Mark as Available')"
                         @click="toggleAvailability(vehicle)"
@@ -31,14 +39,14 @@
                 <Button
                     :label="hasPrice(vehicle.id) ? 'Editar datos' : 'Agregar precio'"
                     class="p-button-info"
-                    @click="goToPricing(vehicle.id)"
-                />
+                    @click="goToPricing(vehicle.id)" />
               </div>
             </div>
           </div>
         </div>
       </transition-group>
 
+      <!-- Diálogo para agregar vehículo -->
       <Dialog header="Agregar Vehículo" v-model:visible="showAddVehicleDialog" :closable="true" :modal="true">
         <div class="dialog-content">
           <div class="form-group">
@@ -56,6 +64,10 @@
           <div class="form-group">
             <label>{{ $t('Equipaje (kg)') }}:</label>
             <InputNumber v-model="newVehicle.luggage_capacity" class="w-full mb-3" />
+          </div>
+          <div class="form-group">
+            <label>Imagen (URL):</label>
+            <InputText v-model="newVehicle.url" class="w-full mb-3" placeholder="https://..." />
           </div>
           <Button :label="$t('add')" @click="handleAddVehicle" class="p-button-success mt-2 w-full" />
         </div>
@@ -106,6 +118,7 @@ export default {
       passengers: 0,
       luggage_capacity: 0,
       available: true,
+      url: ''
     });
 
     const vehicleApiService = new VehicleApiService();
@@ -181,6 +194,7 @@ export default {
           passengers: newVehicle.value.passengers,
           luggage_capacity: newVehicle.value.luggage_capacity,
           available: newVehicle.value.available,
+          url: newVehicle.value.url,
           companyId: companyId
         });
 
@@ -308,6 +322,14 @@ export default {
 .card-content {
   padding: 25px;
   text-align: center;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .vehicle-title {

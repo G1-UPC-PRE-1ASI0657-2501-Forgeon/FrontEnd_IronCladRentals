@@ -96,6 +96,11 @@
       "id": "7fef",
       "car_model": "asdsad",
       "brand_id": "5850"
+    },
+    {
+      "id": "dc73",
+      "car_model": "Yaris Sedan",
+      "brand_id": "f01f"
     }
   ],
   "users": [
@@ -188,6 +193,15 @@
       "phone_num": "9945687",
       "rol": true,
       "password": "hola"
+    },
+    {
+      "id": "6857",
+      "names": "Pepe",
+      "dni": "123456789",
+      "email": "pepe@gmail.com",
+      "phone_num": "99451237",
+      "rol": false,
+      "password": "555"
     }
   ],
   "companies": [
@@ -230,7 +244,8 @@
       "passengers": 50,
       "luggage_capacity": 40,
       "available": true,
-      "enterprise_id": "0333"
+      "companyId": "0333",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4xpHSkuPvB2FKN-VS6B9-01RI7t_LJC-mIA&s"
     },
     {
       "id": "6ee9",
@@ -239,6 +254,17 @@
       "passengers": 5,
       "luggage_capacity": 6,
       "available": true,
+      "companyId": "6b7226a6-4e82-45d8-8479-e7802f85376b",
+      "url": "https://euroshop.com.pe/wp-content/uploads/2024/09/audi-q5.png"
+    },
+    {
+      "id": "6751",
+      "brand_id": "f01f",
+      "model_id": "dc73",
+      "passengers": 4,
+      "luggage_capacity": 30,
+      "available": true,
+      "url": "https://www.toyotaperu.com.pe/sites/default/files/2024-11/auto-toyota-corolla-2024.webp",
       "companyId": "6b7226a6-4e82-45d8-8479-e7802f85376b"
     }
   ],
@@ -280,12 +306,19 @@
       "longitude": -74.01
     }
   ],
-  "rental_locations": [
+  "payment-methods": [
     {
-      "id": "21df",
-      "rentalLocation_id": 1,
-      "rental_id": "1329",
-      "location_id": "a6f2"
+      "id": "a1b2",
+      "method_name": "Credit Card",
+      "user_Id": "c768"
+    },
+    {
+      "card_type": "Visa",
+      "last_digits": "4520",
+      "expiration_month": 5,
+      "expiration_year": 2030,
+      "id": "70ee",
+      "user_id": "6857"
     }
   ]
 }
