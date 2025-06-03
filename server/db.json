@@ -39,6 +39,10 @@
     {
       "id": "5850",
       "brand_name": "asdsad"
+    },
+    {
+      "id": "e5e8",
+      "brand_name": "Hola"
     }
   ],
   "models": [
@@ -101,6 +105,16 @@
       "id": "dc73",
       "car_model": "Yaris Sedan",
       "brand_id": "f01f"
+    },
+    {
+      "id": "0769",
+      "car_model": "XD",
+      "brand_id": "e5e8"
+    },
+    {
+      "id": "bf16",
+      "car_model": "A3",
+      "brand_id": "28b7"
     }
   ],
   "users": [
@@ -263,13 +277,13 @@
       "url": "https://euroshop.com.pe/wp-content/uploads/2024/09/audi-q5.png"
     },
     {
-      "id": "6751",
-      "brand_id": "f01f",
-      "model_id": "dc73",
+      "id": "632f",
+      "brand_id": "28b7",
+      "model_id": "bf16",
       "passengers": 4,
-      "luggage_capacity": 30,
+      "luggage_capacity": 5,
       "available": true,
-      "url": "https://www.toyotaperu.com.pe/sites/default/files/2024-11/auto-toyota-corolla-2024.webp",
+      "url": "https://images.contentstack.io/v3/assets/blt06f605a34f1194ff/bltaf46149264e88b48/6781593f1cd05fd46a4b089c/BCC-2024-EXPLORER-OSAKA-FUN-THINGS-TO-DO-IN-OSAKA-HEADER_MOBILE.jpg?format=webp&quality=60&width=1440",
       "companyId": "6b7226a6-4e82-45d8-8479-e7802f85376b"
     }
   ],
@@ -283,33 +297,6 @@
       "vehicle_id": "6d4f"
     },
     {
-      "id": "93b7",
-      "vehicle_id": null,
-      "user_id": null,
-      "location_id": "a6f2",
-      "start_date": "2025-06-03T05:00:00.000Z",
-      "end_date": "2025-06-25T05:00:00.000Z",
-      "rental_status": "pendiente"
-    },
-    {
-      "id": "aabd",
-      "vehicle_id": null,
-      "user_id": null,
-      "location_id": "a6f2",
-      "start_date": "2025-06-03T05:00:00.000Z",
-      "end_date": "2025-06-30T05:00:00.000Z",
-      "rental_status": "pendiente"
-    },
-    {
-      "id": "0067",
-      "vehicle_id": null,
-      "user_id": null,
-      "location_id": "a6f2",
-      "start_date": "2025-06-09T05:00:00.000Z",
-      "end_date": "2025-06-11T05:00:00.000Z",
-      "rental_status": "pendiente"
-    },
-    {
       "id": "b442",
       "vehicle_id": "6ee9",
       "user_id": "1c57",
@@ -317,6 +304,15 @@
       "start_date": "2025-07-01T05:00:00.000Z",
       "end_date": "2025-07-15T05:00:00.000Z",
       "rental_status": "pendiente"
+    },
+    {
+      "id": "38de",
+      "vehicle_id": "632f",
+      "user_id": "1c57",
+      "location_id": "a6f2",
+      "start_date": "2025-06-11T05:00:00.000Z",
+      "end_date": "2025-06-27T05:00:00.000Z",
+      "rental_status": "active"
     }
   ],
   "pricings": [
@@ -334,6 +330,11 @@
       "id": "de90",
       "vehicle_id": "6ee9",
       "price": 50
+    },
+    {
+      "id": "7be2",
+      "vehicle_id": "632f",
+      "price": 60
     }
   ],
   "locations": [

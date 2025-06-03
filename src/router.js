@@ -12,6 +12,7 @@ import theUserConfig from "@/pages/the-user-config.vue";
 import thePricingPage from "@/pages/the-pricing.page.vue";
 import thePaymentsMethods from "@/pages/the-payments-methods.vue";
 import TheRentCreation from "@/pages/the-rent-creation.page.vue";
+import TheRentListPage from "@/pages/the-rent-list.page.vue";
 
 
 const routes = [
@@ -29,7 +30,8 @@ const routes = [
     { path: '/user-config', component: theUserConfig },
     { path: '/:pathMatch(.*)*', component: thePageNotFoundPage },
     { path: '/payment-methods', component: thePaymentsMethods },
-    { path: '/rent/:id', component: TheRentCreation }
+    { path: '/rent/:id', component: TheRentCreation },
+    { path: '/rent-list', component: TheRentListPage }
 ]
 
 const router = createRouter({
