@@ -48,7 +48,13 @@
           <span class="value">{{ price }}</span>
         </div>
 
-        <Button label="Volver" class="p-button-secondary" @click="$router.push('/search-vehicles')" />
+        <Button label="Volver" class="p-button-secondary" @click="$router.push('/search-vehicles')">Regresar</button>
+
+        <router-link :to="`/rent/${vehicle.id}`">
+          <button class="p-button-secondary">
+            Rentar este vehículo
+          </button>
+        </router-link>
       </div>
     </div>
 

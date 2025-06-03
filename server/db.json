@@ -234,6 +234,11 @@
       "id": "e3cb7265-3a18-42dc-8f68-06ff791932c0",
       "name": "HolaCompany",
       "ruc": "8753571345"
+    },
+    {
+      "id": "ebb71a85-15be-4eef-abc2-817244801789",
+      "name": "Hola",
+      "ruc": "4789753"
     }
   ],
   "vehicles": [
@@ -276,6 +281,42 @@
       "rental_status": "active",
       "user_id": "7bcb",
       "vehicle_id": "6d4f"
+    },
+    {
+      "id": "93b7",
+      "vehicle_id": null,
+      "user_id": null,
+      "location_id": "a6f2",
+      "start_date": "2025-06-03T05:00:00.000Z",
+      "end_date": "2025-06-25T05:00:00.000Z",
+      "rental_status": "pendiente"
+    },
+    {
+      "id": "aabd",
+      "vehicle_id": null,
+      "user_id": null,
+      "location_id": "a6f2",
+      "start_date": "2025-06-03T05:00:00.000Z",
+      "end_date": "2025-06-30T05:00:00.000Z",
+      "rental_status": "pendiente"
+    },
+    {
+      "id": "0067",
+      "vehicle_id": null,
+      "user_id": null,
+      "location_id": "a6f2",
+      "start_date": "2025-06-09T05:00:00.000Z",
+      "end_date": "2025-06-11T05:00:00.000Z",
+      "rental_status": "pendiente"
+    },
+    {
+      "id": "b442",
+      "vehicle_id": "6ee9",
+      "user_id": "1c57",
+      "location_id": "a6f2",
+      "start_date": "2025-07-01T05:00:00.000Z",
+      "end_date": "2025-07-15T05:00:00.000Z",
+      "rental_status": "pendiente"
     }
   ],
   "pricings": [
