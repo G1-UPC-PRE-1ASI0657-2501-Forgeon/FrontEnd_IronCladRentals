@@ -73,7 +73,7 @@ export default {
       location_id: null,
       start_date: null,
       end_date: null,
-      rental_status: "pendiente",
+      rental_status: "active",
     });
 
     const locations = ref([]);

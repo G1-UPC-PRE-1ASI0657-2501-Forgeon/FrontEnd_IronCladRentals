@@ -84,7 +84,7 @@ export default {
           } else {
             // Usuario es arrendatario
             alert("Login exitoso. Redirigiendo a tu panel.");
-            await router.push("/landlord-vehicles");
+            await router.push("/search-vehicles");
           }
         } else {
           alert("Contraseña incorrecta");
