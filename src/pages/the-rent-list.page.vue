@@ -7,27 +7,26 @@
       <h1 class="page-title">Rentas de Mis Vehículos</h1>
 
       <transition-group name="fade" tag="div" class="cards-container">
-        <div v-for="(rental, index) in rentals" :key="rental.id" class="card1">
+        <div v-for="(rental, index) in filteredRentals" :key="rental.id" class="card1">
           <div class="p-4 border-round surface-card shadow-2 card-content">
             <div class="flex flex-column align-items-center">
-              <!-- Imagen del vehículo -->
               <img :src="getVehicleImage(rental.vehicle_id)" alt="Imagen del vehículo" class="vehicle-image mb-3" />
-
-              <!-- Información del vehículo -->
+              <Tag
+                  :value="rental.rental_status"
+                  :severity="getStatusSeverity(rental.rental_status)"
+                  class="mb-3"
+              />
               <h2 class="vehicle-title">{{ getVehicleInfo(rental.vehicle_id) }}</h2>
-
-              <!-- Fechas de renta -->
-              <p class="rental-info">Inicio: {{ formatDate(rental.start_date) }}</p>
-              <p class="rental-info">Fin: {{ formatDate(rental.end_date) }}</p>
-
-              <!-- Nombre del usuario -->
-              <p class="rental-info">Arrendatario: {{ getUserName(rental.user_id) }}</p>
-
-              <!-- Ubicación -->
-              <p class="rental-info">Ubicación: {{ getLocationName(rental.location_id) }}</p>
-
-              <!-- Estado de la renta -->
-              <Tag :value="rental.rental_status" :severity="getStatusSeverity(rental.rental_status)" class="mb-3" />
+              <p class="vehicle-info">📅 Inicio: {{ formatDate(rental.start_date) }}</p>
+              <p class="vehicle-info">📅 Fin: {{ formatDate(rental.end_date) }}</p>
+              <p class="vehicle-info">👤 Arrendatario: {{ getUserName(rental.user_id) }}</p>
+              <p class="vehicle-info">📍 Ubicación: {{ getLocationName(rental.location_id) }}</p>
+              <Button
+                  v-if="rental.rental_status !== 'finished'"
+                  :label="'Cancelar Renta'"
+                  class="p-button-danger mt-3"
+                  @click="cancelRental(rental.id)"
+              />
             </div>
           </div>
         </div>
@@ -40,19 +39,24 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import Tag from "primevue/tag";
+import Button from "primevue/button";
 import TheHeaderSession from "@/components/elements/the-header-session.component.vue";
 import TheFooter from "@/components/elements/the-footer.component.vue";
 import vehicleApiService from "@/shared/services/vehicle-api.service.js";
 import rentalApiService from "@/shared/services/rental-api.service.js";
 import userService from "@/shared/services/user-api.service.js";
 import locationApiService from "@/shared/services/location-api.service.js";
+import { BrandApiService } from "@/shared/services/brand-api.service.js";
+import { ModelApiService } from "@/shared/services/model-api.service.js";
+
 
 export default {
   name: "LandlordRentals",
   components: {
     Tag,
+    Button,
     TheHeaderSession,
     TheFooter,
   },
@@ -61,6 +65,11 @@ export default {
     const vehicles = ref([]);
     const users = ref([]);
     const locations = ref([]);
+    const brands = ref([]);
+    const models = ref([]);
+
+    const brandApiService = new BrandApiService();
+    const modelApiService = new ModelApiService();
 
     const fetchRentals = async () => {
       try {
@@ -70,11 +79,13 @@ export default {
           return;
         }
 
-        const [vehicleRes, rentalRes, userRes, locationRes] = await Promise.all([
+        const [vehicleRes, rentalRes, userRes, locationRes, brandRes, modelRes] = await Promise.all([
           vehicleApiService.getAll(),
           rentalApiService.getAll(),
           userService.getAll(),
           locationApiService.getAll(),
+          brandApiService.getAll(),
+          modelApiService.getAll(),
         ]);
 
         vehicles.value = vehicleRes.data.filter((v) => v.companyId === companyId);
@@ -83,14 +94,44 @@ export default {
         );
         users.value = userRes;
         locations.value = locationRes.data;
+        brands.value = brandRes.data;
+        models.value = modelRes.data;
       } catch (error) {
         console.error("Error al obtener rentas, vehículos, usuarios o ubicaciones:", error);
       }
     };
 
+    const cancelRental = async (rentalId) => {
+      try {
+        const rental = rentals.value.find((r) => r.id === rentalId);
+        if (rental) {
+          await rentalApiService.update(rentalId, { ...rental, rental_status: "finished" });
+          rental.rental_status = "finished";
+        }
+      } catch (error) {
+        console.error("Error al cancelar la renta:", error);
+      }
+    };
+
+    const filteredRentals = computed(() =>
+        rentals.value.filter((rental) => rental.rental_status !== "finished")
+    );
+
+    const getBrandName = (brandId) => {
+      const brand = brands.value.find((b) => b.id === brandId);
+      return brand ? brand.brand_name : "Desconocido";
+    };
+
+    const getModelName = (modelId) => {
+      const model = models.value.find((m) => m.id === modelId);
+      return model ? model.car_model : "Desconocido";
+    };
+
     const getVehicleInfo = (vehicleId) => {
       const vehicle = vehicles.value.find((v) => v.id === vehicleId);
-      return vehicle ? `${vehicle.brand_id} - ${vehicle.model_id}` : "Desconocido";
+      return vehicle
+          ? `${getBrandName(vehicle.brand_id)} - ${getModelName(vehicle.model_id)}`
+          : "Desconocido";
     };
 
     const getVehicleImage = (vehicleId) => {
@@ -131,6 +172,8 @@ export default {
 
     return {
       rentals,
+      filteredRentals,
+      cancelRental,
       getVehicleInfo,
       getVehicleImage,
       getUserName,
@@ -143,18 +186,18 @@ export default {
 </script>
 
 <style scoped>
-
 .vehicle-image {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
+}
+
 .landlord-rentals {
-  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
+  background: linear-gradient(to bottom right, #f0f4f8, #d9e8e2);
   min-height: 100vh;
-  padding-top: 100px;
+  padding-top: 120px;
   position: fixed;
   top: 0;
   left: 0;
@@ -167,7 +210,7 @@ export default {
   font-size: 2.5rem;
   color: #08351a;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .cards-container {
@@ -175,23 +218,24 @@ export default {
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
+  padding: 0 20px;
 }
 
 .card1 {
   width: 320px;
-  background: linear-gradient(135deg, #d8f3dc, #ffffff);
+  background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card1:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
 }
 
 .card-content {
-  padding: 25px;
+  padding: 20px;
   text-align: center;
 }
 
@@ -202,7 +246,7 @@ export default {
   margin-bottom: 12px;
 }
 
-.rental-info {
+.vehicle-info {
   font-size: 1rem;
   color: #407148;
   margin: 6px 0;
@@ -218,7 +262,6 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
 }
 
 header {
@@ -227,5 +270,16 @@ header {
   left: 0;
   right: 0;
   z-index: 100;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
 }
 </style>
