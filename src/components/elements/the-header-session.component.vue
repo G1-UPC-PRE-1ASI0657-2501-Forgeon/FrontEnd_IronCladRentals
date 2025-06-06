@@ -109,24 +109,4 @@ export default {
   background-color: #bd2130;
 }
 
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .right-section {
-    margin-top: 10px;
-  }
-
-  .link {
-    margin-right: 0;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  .button-logout {
-    margin-left: 0;
-    display: block;
-  }
-}
 </style>

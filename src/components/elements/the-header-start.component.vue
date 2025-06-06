@@ -1,8 +1,7 @@
 <template>
   <header class="header">
-    <div class="container">
-      <div class="left-section">
-        <div class="logo-container">
+    <div class="container">      <div class="left-section">
+        <div class="logo-container" @click="goToMain">
           <img src="../../assets/images/logo.png" alt="Logo" class="logo">
         </div>
       </div>
@@ -21,8 +20,14 @@ export default {
     return {
       companyName: 'IronClad Rentals'
     };
-  },
-  methods: {
+  },  methods: {
+    async goToMain() {
+      try {
+        await this.$router.push('/');
+      } catch (error) {
+        console.error('Error navigating to main:', error);
+      }
+    },
     async logout() {
       try {
         await this.$router.push('/');
@@ -50,6 +55,12 @@ export default {
 .logo-container {
   display: flex;
   align-items: center;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.logo-container:hover {
+  opacity: 0.8;
 }
 
 .logo {

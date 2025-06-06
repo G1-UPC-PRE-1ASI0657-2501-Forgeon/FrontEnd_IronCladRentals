@@ -7,7 +7,6 @@
           <h1 class="company-name">{{ companyName }}</h1>
         </div>
       </div>
-      <language-switcher aria-label="Language switcher"/>
     </div>
   </header>
 </template>
