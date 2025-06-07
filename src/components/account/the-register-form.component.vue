@@ -1,72 +1,33 @@
 <template>
   <div class="registration-form-container" role="form" aria-label="Formulario de registro">
     <div class="registration-form">
-      <h2>Registro</h2>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="names">Nombre completo:</label>
-        </div>
+      <h2>Registro</h2>      <div class="form-group">
         <div class="input-field">
-          <pv-input-text type="text" id="names" v-model="name" required aria-label="Ingrese su nombre completo" />
+          <pv-input-text type="text" id="names" v-model="names" required aria-label="Ingrese su nombre completo" placeholder="Nombre completo" />
         </div>
-      </div>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="dni">DNI:</label>
-        </div>
+      </div>      <div class="form-group">
         <div class="input-field">
-          <pv-input-text type="text" id="dni" v-model="dni" required aria-label="Ingrese su DNI" />
+          <pv-input-text type="text" id="dni" v-model="dni" required aria-label="Ingrese su DNI" placeholder="DNI" />
         </div>
-      </div>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="email">Correo electrónico:</label>
-        </div>
+      </div>      <div class="form-group">
         <div class="input-field">
-          <pv-input-text type="email" id="email" v-model="email" required aria-label="Ingrese su correo electrónico" />
+          <pv-input-text type="email" id="email" v-model="email" required aria-label="Ingrese su correo electrónico" placeholder="Correo electrónico" />
         </div>
-      </div>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="phone">Teléfono:</label>
-        </div>
+      </div>      <div class="form-group">
         <div class="input-field">
-          <pv-input-text type="tel" id="phone" v-model="phone" required aria-label="Ingrese su número de teléfono" />
+          <pv-input-text type="tel" id="phone" v-model="phone" required aria-label="Ingrese su número de teléfono" placeholder="Teléfono" />
         </div>
-      </div>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="rol">Rol:</label>
-        </div>
+      </div>      <div class="form-group">
         <div class="input-field">
           <select id="rol" v-model="rol" required aria-label="Seleccione su rol">
-            <option disabled value="">Seleccionar rol</option>
-            <option :value="true">Arrendador</option>
-            <option :value="false">Arrendatario</option>
+            <option value="">Seleccionar rol</option>
+            <option value="true">Arrendador</option>
+            <option value="false">Arrendatario</option>
           </select>
         </div>
-      </div>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="password">Contraseña:</label>
-        </div>
+      </div>      <div class="form-group">
         <div class="input-field">
-          <input type="password" id="password" v-model="password" required aria-label="Ingrese su contraseña" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div class="input-label">
-          <label for="confirmPassword">Confirmar Contraseña:</label>
-        </div>
-        <div class="input-field">
-          <input type="password" id="confirmPassword" v-model="confirmPassword" required aria-label="Confirme su contraseña" />
+          <input type="password" id="password" v-model="password" required aria-label="Ingrese su contraseña" placeholder="Contraseña" />
         </div>
       </div>
 
@@ -83,48 +44,40 @@ export default {
   name: "TheRegisterForm",
   data() {
     return {
-      name: "",
+      names: "",
       dni: "",
       email: "",
       phone: "",
-      rol: "", // será booleano gracias a :value en el select
-      password: "",
-      confirmPassword: "",
+      rol: "",      password: "",
     };
   },
   methods: {
     async register() {
-      if (!this.name || !this.dni || !this.email || !this.phone || this.rol === "" || !this.password || !this.confirmPassword) {
-        alert("Por favor complete todos los campos.");
-        return;
-      }
-
-      if (this.password !== this.confirmPassword) {
-        alert("Las contraseñas no coinciden.");
-        return;
-      }
-
       const body = {
-        email: this.email,
-        password: this.password,
-        name: this.name,
+        names: this.names,
         dni: this.dni,
-        phone: this.phone,
-        role: this.rol, // ahora es booleano
+        email: this.email,
+        phone_num: this.phone,
+        rol: this.rol === "true", // Convertir a booleano
+        password: this.password,
       };
 
-      console.log("Datos a registrar:", body); // Para debug
+      console.log("Datos a registrar:", body); // Verificar los datos enviados
 
       try {
         const response = await userService.create(body);
-        console.log("Respuesta de la API:", response);
-        if (response) {
+        console.log("Respuesta de la API:", response); // Verificar la respuesta de la API
+
+        // Verificar si la respuesta tiene un id (esto indica que el usuario fue creado)
+        if (response && response.id) {
           alert("Usuario registrado exitosamente");
           await router.push("/login");
         } else {
+          console.error("Error al registrar el usuario: Respuesta no contiene ID");
           alert("Hubo un error en el registro.");
         }
       } catch (error) {
+        // Aquí registramos el error de forma detallada
         console.error("Error al registrar el usuario:", error.response ? error.response.data : error.message);
         alert("Hubo un problema al registrar el usuario. Por favor, intente nuevamente.");
       }
@@ -134,39 +87,45 @@ export default {
 </script>
 
 <style scoped>
-.registration-form {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 400px;
+.registration-form-container {
   width: 100%;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  color: #5c8677;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.registration-form {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 20px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #333;
 }
 
 h2 {
   text-align: center;
   margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 1.9em;
+  font-weight: 600;
+  background: linear-gradient(45deg, #75aa9c, #5a9e8e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: flex;
-  align-items: center;
-}
-
-.input-label {
-  flex: 1;
-  color: #5c8677;
+  flex-direction: column;
 }
 
 .input-field {
-  flex: 3;
-}
-
-label {
-  margin-bottom: 5px;
-  display: block;
+  position: relative;
 }
 
 input[type="text"],
@@ -175,25 +134,113 @@ input[type="tel"],
 input[type="password"],
 select {
   width: 100%;
-  padding: 15px;
-  border: none;
-  border-bottom: 1px solid #757575;
+  padding: 12px 16px;
+  border: 2px solid #e8ecef;
+  border-radius: 12px;
   outline: none;
-  font-size: 16px;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="password"]::placeholder {
+  color: #a0a0a0;
+  font-style: italic;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+select:focus {
+  border-color: #75aa9c;
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(117, 170, 156, 0.15);
+}
+
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  appearance: none;
 }
 
 button {
   width: 100%;
-  padding: 10px;
-  background-color: #75aa9c;
+  padding: 14px;
+  background: linear-gradient(45deg, #75aa9c, #5a9e8e);
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  margin-top: 8px;
 }
 
 button:hover {
-  background-color: #5c8677;
+  background: linear-gradient(45deg, #5a9e8e, #377a6a);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(117, 170, 156, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .registration-form {
+    padding: 20px;
+    max-width: 100%;
+  }
+  
+  h2 {
+    font-size: 1.7em;
+    margin-bottom: 15px;
+  }
+  
+  .form-group {
+    margin-bottom: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .registration-form {
+    padding: 18px 16px;
+  }
+  
+  h2 {
+    font-size: 1.5em;
+    margin-bottom: 12px;
+  }
+  
+  .form-group {
+    margin-bottom: 12px;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  select {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  button {
+    padding: 12px;
+    font-size: 14px;
+  }
 }
 </style>

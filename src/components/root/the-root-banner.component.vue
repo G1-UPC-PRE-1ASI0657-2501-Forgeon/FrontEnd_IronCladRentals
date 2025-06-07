@@ -29,37 +29,57 @@ export default {
 
 <style scoped>
 .banner {
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 50px 0;
-  height: 100vh;
+  background-color: white;
+  padding: 40px 0;
+  min-height: calc(100vh - 60px); /* Ajustar al alto de la pantalla menos el header */
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.03);
 }
 
 .container {
-  width: 100%;
-  max-width: 1140px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 .row {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
 }
 
 .col-lg-6 {
   flex: 1;
+  min-width: 300px;
+  max-width: 560px;
 }
 
-.left-section, .right-section {
-  padding: 0 20px;
+.left-section {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.right-section {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .headline {
-  font-size: 3rem;
+  font-size: 2.8rem;
   font-weight: bold;
   margin-bottom: 20px;
   color: #377a6a;
+  line-height: 1.2;
 }
 
 .description {
@@ -70,16 +90,35 @@ export default {
 }
 
 .features {
-  padding-left: 20px;
+  padding-left: 0;
+  list-style-type: none;
 }
 
 .features li {
-  margin-bottom: 10px;
-  color: #777;
+  margin-bottom: 12px;
+  color: #555;
+  position: relative;
+  padding-left: 28px;
+}
+
+.features li:before {
+  content: "✓";
+  color: #377a6a;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
 }
 
 .hero-image {
   width: 100%;
-  border-radius: 20px;
+  border-radius: 12px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hero-image:hover {
+  transform: scale(1.02);
 }
 </style>

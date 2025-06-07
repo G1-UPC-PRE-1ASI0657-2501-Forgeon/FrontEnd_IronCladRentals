@@ -20,8 +20,10 @@
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
+
 export default {
-  name: 'TheCreateCompany',
+  name: 'The-Create-Company',
   data() {
     return {
       company: {
@@ -32,32 +34,41 @@ export default {
   },
   methods: {
     async submitCompany() {
+      const userId = localStorage.getItem('userId');
+
+      if (!userId) {
+        alert('No se ha encontrado un usuario logueado.');
+        return;
+      }
+
+      const newCompany = {
+        ...this.company,
+        id: uuidv4()
+      };
+
       try {
-        const response = await fetch("http://localhost:5162/api/v1/companies", {
-          method: "POST",
+        await fetch('http://localhost:3000/companies', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
+            'Content-Type': 'application/json'
           },
-          credentials: "include", // 🔐 Envía las cookies (token HttpOnly)
-          body: JSON.stringify(this.company)
+          body: JSON.stringify(newCompany)
         });
 
-        if (!response.ok) {
-          throw new Error("Error al registrar la compañía.");
-        }
+        const userCompanyMap = JSON.parse(localStorage.getItem('userCompanyMap') || '{}');
+        userCompanyMap[userId] = newCompany.id;
+        localStorage.setItem('userCompanyMap', JSON.stringify(userCompanyMap));
+        localStorage.setItem('companyId', newCompany.id);
 
-        alert("¡Compañía registrada con éxito!");
-        this.$router.push("/home");
+        alert('¡Compañía registrada con éxito!');
+        this.$router.push('/home');
       } catch (error) {
-        console.error("Error al crear la compañía:", error);
-        alert("Hubo un error al registrar la compañía.");
+        console.error('Error al crear la compañía:', error);
       }
     }
   }
 };
 </script>
-
 
 <style scoped>
 .company-form-container {

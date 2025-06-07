@@ -16,17 +16,6 @@ export class VehicleApiService {
         return await http.post('vehicles', body)
     }
 
-     async createCompany(credentials) {
-        try {
-            const response = await api.post("/ironclead/v1/authentication/sign-in", credentials,{ withCredentials: true });
-            return response;  // 🔥 RETORNAR la respuesta completa
-        } catch (error) {
-            console.error("❌ Error en loginUser:", error);
-            throw error;  // 🔥 Re-lanzar el error para que lo capture `handleLogin`
-        }
-    }
-
-
     async update(id, body) {
         return await http.put(`vehicles/`+id, body)
     }

@@ -9,11 +9,13 @@
         </div>
       </div>
       <div class="right-section">
-        <router-link to="/home" class="link" aria-label="Home">Home</router-link>
-        <router-link  to="/user-config" class="link" aria-label="User Config">Usuario</router-link>
+        <!-- <router-link to="/home" class="link" aria-label="Home">Home</router-link> -->
         <router-link v-if="isArrendador" to="/landlord-vehicles" class="link" aria-label="Vehicles">Mis Vehículos</router-link>
         <router-link v-if="isArrendador" to="/edit" class="link" aria-label="Vehicles">Editar Vehículos</router-link>
+        <router-link v-if="isArrendador" to="/rent-list" class="link" aria-label="Rentas">Ver Rentas</router-link>
         <router-link v-if="isArrendatario" to="/search-vehicles" class="link" aria-label="Search">Busqueda</router-link>
+        <router-link v-if="isArrendatario" to="/active-rents" class="link" aria-label="Rent">Renta</router-link>
+        <router-link  to="/user-config" class="link" aria-label="User Config">Usuario</router-link>
         <button @click="logout" class="button-logout" aria-label="Log out">Log out</button>
       </div>
     </div>
@@ -107,24 +109,4 @@ export default {
   background-color: #bd2130;
 }
 
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .right-section {
-    margin-top: 10px;
-  }
-
-  .link {
-    margin-right: 0;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  .button-logout {
-    margin-left: 0;
-    display: block;
-  }
-}
 </style>
