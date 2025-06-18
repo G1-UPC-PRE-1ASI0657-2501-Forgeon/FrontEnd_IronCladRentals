@@ -174,11 +174,38 @@ export default {
 </script>
 
 <style scoped>
-.page-title {
-  font-size: 2.2rem;
-  color: #1a493f;
-  font-weight: bold;
-  margin: 0;
+.user-payment-methods {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f4f8f4;
+}
+
+/* Header fijo pero no causa recorte de contenido */
+header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+
+footer {
+  background-color: #2c3e50;
+  padding: 15px 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: #e0e0e0;
+  text-align: center;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Main content crece dinámicamente */
+.content {
+  flex: 1;
+  padding-top: 80px;
+  padding-bottom: 40px;
 }
 
 .title-bar {
@@ -187,6 +214,13 @@ export default {
   justify-content: flex-start;
   margin: 2rem 1rem 1rem;
   gap: 21px;
+}
+
+.page-title {
+  font-size: 2.2rem;
+  color: #1a493f;
+  font-weight: bold;
+  margin: 0;
 }
 
 .cards-container {
@@ -210,12 +244,6 @@ export default {
 .card1:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
-}
-
-.content {
-  position: relative;
-  z-index: 0;
-  padding-bottom: 100px;
 }
 
 .card-content {
@@ -297,26 +325,5 @@ export default {
   margin-bottom: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-}
-
-footer {
-  background-color: #4f4d4d;
-  padding: 15px 0;
-  font-size: 16px;
-  line-height: 24px;
-  color: #e0e0e0;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-}
-
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
 }
 </style>

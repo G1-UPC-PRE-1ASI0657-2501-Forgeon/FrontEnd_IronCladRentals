@@ -167,15 +167,27 @@ export default {
 </script>
 
 <style scoped>
-.content {
+.search-vehicles {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e6f0e6 0%, #c9dbc9 100%);
+}
+
+header {
   position: fixed;
-  top: 60px;
-  bottom: 100px;
+  top: 0;
   left: 0;
   right: 0;
-  padding: 25px 20px;
-  overflow-y: auto;
-  background: linear-gradient(135deg, #e6f0e6 0%, #c9dbc9 100%);
+  z-index: 101;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+main.content {
+  margin-top: 80px;
+  padding: 25px 20px 40px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -211,12 +223,10 @@ export default {
   box-shadow: 0 4px 8px rgba(127, 168, 127, 0.15);
   transition: all 0.3s ease;
 }
-
 .search-bar::placeholder {
   color: #8ca88c;
   font-style: italic;
 }
-
 .search-bar:focus {
   outline: none;
   border-color: #4a764a;
@@ -237,7 +247,6 @@ export default {
   transition: all 0.3s ease;
   box-shadow: 0 4px 8px rgba(127, 168, 127, 0.15);
 }
-
 .brand-filter:hover,
 .brand-filter:focus {
   border-color: #4a764a;
@@ -316,12 +325,10 @@ export default {
   filter: blur(50px);
   opacity: 0.4;
 }
-
 .card:hover::before {
   transform: rotate(45deg) translateX(-15%);
   opacity: 0.6;
 }
-
 .card:hover {
   transform: translateY(-7px);
   box-shadow:
@@ -382,28 +389,15 @@ export default {
 }
 
 footer {
-  background-color: #496b49;
+  background-color: #2c3e50;
   padding: 18px 0 16px 0;
   font-size: 14px;
   line-height: 22px;
   color: #e0f2e0;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
   text-align: center;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   box-shadow: 0 -4px 10px rgba(53, 102, 53, 0.3);
-}
-
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 101;
 }
 
 @media (max-width: 900px) {

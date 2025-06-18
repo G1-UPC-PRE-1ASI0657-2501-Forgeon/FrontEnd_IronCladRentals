@@ -209,50 +209,36 @@ export default {
 .user-config-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #e9f5f3, #d4e9e2);
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  overflow: visible;
 }
 
 header {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 100;
-  height: 60px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-footer {
-  background-color: #4f4d4d;
-  padding: 10px 0;
-  font-size: 14px;
-  color: #737373;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-}
-
 .content {
-  position: absolute;
-  top: 58px;
-  bottom: 50px;
-  left: 0;
-  right: 0;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 8px;
+  padding: 16px;
   overflow-y: auto;
+}
+
+footer {
+  background-color: #2c3e50;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #e0e0e0;
+  text-align: center;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+
 }
 
 .user-config-container {
@@ -264,7 +250,6 @@ footer {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   animation: slideIn 0.4s ease-out;
   position: relative;
-  overflow: hidden;
 }
 
 @keyframes slideIn {
@@ -282,8 +267,6 @@ footer {
   text-align: center;
   margin-bottom: 16px;
   cursor: pointer;
-  display: inline-block;
-  perspective: 600px;
 }
 
 .icon-container i {
@@ -291,7 +274,6 @@ footer {
   color: #1976d2;
   animation: pulse 1.5s infinite ease-in-out;
   transition: transform 0.3s ease, color 0.3s ease;
-  display: inline-block;
 }
 
 .icon-container i.icon-hover {
@@ -301,18 +283,8 @@ footer {
 }
 
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.1); opacity: 1; }
 }
 
 .section-block {
@@ -336,7 +308,6 @@ h2 {
   color: #333;
   font-weight: 600;
   position: relative;
-  overflow: hidden;
 }
 
 .animated-title::after {
@@ -376,7 +347,6 @@ label {
   font-weight: 500;
   color: #444;
   font-size: 0.85rem;
-  user-select: none;
 }
 
 input {
@@ -384,16 +354,15 @@ input {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.85rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   background-color: #f9fafd;
-  outline-offset: 2px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 input:focus {
   border-color: #1976d2;
   box-shadow: 0 0 6px rgba(25, 118, 210, 0.5);
-  outline: none;
   background-color: #fff;
+  outline: none;
 }
 
 .error-message {
@@ -403,7 +372,6 @@ input:focus {
   font-weight: 600;
 }
 
-/* Shake animation for errors */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-6px); }
@@ -430,9 +398,6 @@ input:focus {
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  user-select: none;
-  position: relative;
-  overflow: hidden;
 }
 
 .action-button.primary {
@@ -445,35 +410,29 @@ input:focus {
   background-color: #218838;
   transform: scale(1.05);
   box-shadow: 0 6px 16px rgba(33, 136, 56, 0.7);
-  z-index: 2;
 }
 
 .action-button.secondary {
   background-color: #f0f0f0;
   color: #444;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .action-button.secondary:hover {
   background-color: #d6d6d6;
   transform: scale(1.05);
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  z-index: 2;
 }
 
-/* Bounce animation for buttons */
 @keyframes bounce {
   0%, 60% {
     transform: translateY(0);
   }
-
 }
 
 .bounce {
   animation: bounce 9s infinite;
 }
 
-/* Fade in animation */
 @keyframes fadeIn {
   to {
     opacity: 1;

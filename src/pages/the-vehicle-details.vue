@@ -126,51 +126,43 @@ export default {
 
 <style scoped>
 .vehicle-details {
-  background: #f0f8f4; /* verde pálido suave */
+  background: #f0f8f4;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 60px; /* espacio para el header fijo */
-  padding-bottom: 50px; /* espacio para el footer fijo */
 }
 
+/* Header con sticky */
 header {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 100;
   height: 60px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Footer normal (no fixed) */
 footer {
-  background-color: #4f4d4d;
+  background-color: #2c3e50;
   padding: 10px 0;
   font-size: 14px;
   color: #737373;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  text-align: center;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* Contenedor de contenido crece dinámicamente */
 .content {
-  position: fixed;
-  top: 60px;
-  bottom: 100px;
-  left: 0;
-  right: 0;
+  flex: 1;
   padding: 25px 20px;
-  overflow-y: auto;
   background: linear-gradient(135deg, #e6f0e6 0%, #c9dbc9 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
 }
+
 .details-card {
   background: #ffffff;
   border-radius: 20px;
@@ -283,10 +275,5 @@ footer {
   background-color: #2e7d32;
   transform: scale(1.05);
 }
-
-/* Animación */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 </style>
+

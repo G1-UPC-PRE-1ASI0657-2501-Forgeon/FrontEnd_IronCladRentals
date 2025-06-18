@@ -452,7 +452,7 @@ ul {
 
 
 footer {
-  background-color: #496b49;
+  background-color: #2c3e50;
   padding: 18px 0 16px 0;
   font-size: 14px;
   line-height: 22px;

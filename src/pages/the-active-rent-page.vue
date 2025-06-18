@@ -173,93 +173,38 @@ async function cancelActiveRental() {
 </template>
 
 <style scoped>
-.vehicle-info,
-.vehicle-column,
-.rental-column {
-  text-align: left;
-  color: #111;
-  font-size: 1rem;
-}
-
-.vehicle-img {
-  width: 280px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 14px;
-  margin-bottom: 16px;
-  background: #f2f2f2;
-  border: 1px solid #ddd;
-}
-
-.card-layout {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 24px;
-}
-
-.active-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.cancel-btn {
-  background: #c62828;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.cancel-btn:hover {
-  background: #a31515;
-}
-
 .active-rent-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background: #f4f8f4;
 }
 
 header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
   height: 60px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-footer {
-  background-color: #4f4d4d;
-  padding: 10px 0;
-  font-size: 14px;
-  color: #ffffffd9;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: sticky;
+  top: 0;
   z-index: 100;
 }
 
-.content {
-  position: absolute;
-  top: 60px;
-  bottom: 50px;
-  left: 0;
-  right: 0;
+footer {
+  background-color: #2c3e50;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #ffffffd9;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+main.content {
+  flex: 1;
   display: flex;
   background: #f4f8f4;
+  padding-top: 20px;
 }
 
 .past-rentals {
@@ -333,15 +278,58 @@ footer {
   font-weight: 700;
 }
 
+.vehicle-img {
+  width: 280px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  background: #f2f2f2;
+  border: 1px solid #ddd;
+}
+
+.card-layout {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.vehicle-column,
+.rental-column {
+  text-align: left;
+  font-size: 1.05rem;
+  color: #111;
+  padding: 12px;
+}
+
 .vehicle-info {
   font-size: 1.1rem;
   line-height: 1.6;
 }
 
-.vehicle-column,
-.rental-column {
-  font-size: 1.05rem;
-  padding: 12px;
+.active-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.cancel-btn {
+  background: #c62828;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #a31515;
 }
 
 .modal-overlay {
@@ -404,6 +392,7 @@ footer {
   opacity: 0;
   transform: scale(0.95);
 }
+
 .card-layout .vehicle-column {
   margin-right: 20px;
   border-right: 0.1px solid #ccc;
