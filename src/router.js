@@ -14,6 +14,7 @@ import thePaymentsMethods from "@/pages/the-payments-methods.vue";
 import TheRentCreation from "@/pages/the-rent-creation.page.vue";
 import TheRentListPage from "@/pages/the-rent-list.page.vue";
 import TheActiveRentPage from "@/pages/the-active-rent-page.vue";
+import ThePlaceRegistration from "@/pages/the-place-registration.vue";
 
 
 const routes = [
@@ -34,6 +35,7 @@ const routes = [
     { path: '/rent/:id', component: TheRentCreation },
     { path: '/rent-list', component: TheRentListPage },
     { path: '/active-rents', component: TheActiveRentPage },
+    { path: '/places' , component: ThePlaceRegistration}
 ]
 
 const router = createRouter({

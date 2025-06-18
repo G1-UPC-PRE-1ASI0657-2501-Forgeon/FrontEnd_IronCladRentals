@@ -50,6 +50,7 @@ import TheFooter from "@/components/elements/the-footer.component.vue";
 
 import rentalApiService from "@/shared/services/rental-api.service.js";
 import locationApiService from "@/shared/services/location-api.service.js";
+import VehicleApiService from "@/shared/services/vehicle-api.service.js";
 
 export default {
   components: {
@@ -74,22 +75,42 @@ export default {
     const locations = ref([]);
     const selectedLocation = ref(null);
     const errorMessage = ref("");
+    let map = null;
 
     const fetchLocations = async () => {
       try {
+        const vehicleId = route.params.id;
+        if (!vehicleId) {
+          errorMessage.value = "No se encontró el ID del vehículo en la URL.";
+          return;
+        }
+        // Obtener el vehículo para saber su companyId
+        const vehicleRes = await VehicleApiService.getById(vehicleId);
+        const vehicle = vehicleRes.data || vehicleRes;
+        const companyId = vehicle.companyId;
+
+        // Obtener ubicaciones activas de esa compañía
         const res = await locationApiService.getAll();
         locations.value = (res.data || res)
-            .filter((loc) => loc.location_status === "active")
+            .filter(
+                (loc) =>
+                    loc.location_status === "active" &&
+                    loc.company_id === companyId
+            )
             .map((loc) => ({
               id: loc.id,
-              label: `${loc.city} - ${loc.address} (${loc.latitude}, ${loc.longitude})`,
+              label: `${loc.address} (${loc.latitude}, ${loc.longitude})`,
               latitude: loc.latitude,
               longitude: loc.longitude,
             }));
 
         if (locations.value.length) {
           const first = locations.value[0];
-          const map = L.map("map").setView([first.latitude, first.longitude], 13);
+          // Destruir el mapa anterior si existe
+          if (map) {
+            map.remove();
+          }
+          map = L.map("map").setView([first.latitude, first.longitude], 13);
 
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "© OpenStreetMap contributors"

@@ -13,6 +13,7 @@
         <router-link v-if="isArrendador" to="/landlord-vehicles" class="link" aria-label="Vehicles">Mis Vehículos</router-link>
         <router-link v-if="isArrendador" to="/edit" class="link" aria-label="Vehicles">Editar Vehículos</router-link>
         <router-link v-if="isArrendador" to="/rent-list" class="link" aria-label="Rentas">Ver Rentas</router-link>
+        <router-link v-if="isArrendador" to="/places" class="link" aria-label="Lugares">Ver Rentas</router-link>
         <router-link v-if="isArrendatario" to="/search-vehicles" class="link" aria-label="Search">Busqueda</router-link>
         <router-link v-if="isArrendatario" to="/active-rents" class="link" aria-label="Rent">Renta</router-link>
         <router-link  to="/user-config" class="link" aria-label="User Config">Usuario</router-link>
