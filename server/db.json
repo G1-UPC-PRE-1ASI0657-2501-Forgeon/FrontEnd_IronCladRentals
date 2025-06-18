@@ -216,6 +216,15 @@
       "phone_num": "99451237",
       "rol": false,
       "password": "555"
+    },
+    {
+      "id": "2c5f",
+      "names": "cano",
+      "dni": "23",
+      "email": "cano@gmail.com",
+      "phone_num": "ds",
+      "rol": true,
+      "password": "hola"
     }
   ],
   "companies": [
@@ -313,6 +322,15 @@
       "start_date": "2025-06-11T05:00:00.000Z",
       "end_date": "2025-06-27T05:00:00.000Z",
       "rental_status": "active"
+    },
+    {
+      "id": "dafe",
+      "vehicle_id": "632f",
+      "user_id": "1c57",
+      "location_id": "7479",
+      "start_date": "2025-06-11T05:00:00.000Z",
+      "end_date": "2025-06-13T05:00:00.000Z",
+      "rental_status": "active"
     }
   ],
   "pricings": [
@@ -339,13 +357,20 @@
   ],
   "locations": [
     {
-      "id": "a6f2",
-      "address": "123 Main St",
-      "city": "New York",
-      "country": "USA",
+      "id": "7479",
+      "address": "La Molina, Alameda del Corregidor 1665, Lima, Perú",
+      "latitude": -12.0989292,
+      "longitude": -76.9505141,
       "location_status": "active",
-      "latitude": 40.71,
-      "longitude": -74.01
+      "company_id": "6b7226a6-4e82-45d8-8479-e7802f85376b"
+    },
+    {
+      "id": "f6e0",
+      "address": "Av. Javier Prado Este 4200, lima , perú",
+      "latitude": -12.0882484,
+      "longitude": -77.0042174,
+      "location_status": "active",
+      "company_id": "6b7226a6-4e82-45d8-8479-e7802f85376b"
     }
   ],
   "payment-methods": [
@@ -361,6 +386,14 @@
       "expiration_year": 2030,
       "id": "70ee",
       "user_id": "6857"
+    },
+    {
+      "id": "cfdf",
+      "card_type": "dsd",
+      "last_digits": "2133",
+      "expiration_month": 1,
+      "expiration_year": 22222,
+      "user_id": "1c57"
     }
   ]
 }
