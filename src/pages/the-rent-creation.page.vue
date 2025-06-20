@@ -14,6 +14,14 @@
               <label>Fecha de término</label>
               <Calendar v-model="rental.end_date" dateFormat="yy-mm-dd" showIcon class="calendar-input" />
             </div>
+            <div class="form-group">
+              <label>Método de Pago</label>
+              <select v-model="selectedPaymentMethod" class="payment-select">
+                <option v-for="method in paymentMethods" :key="method.id" :value="method.id">
+                  {{ method.card_type }} - **** {{ method.last_digits }}
+                </option>
+              </select>
+            </div>
           </div>
           <div class="form-right">
             <label>Ubicación de entrega</label>
@@ -51,6 +59,7 @@ import TheFooter from "@/components/elements/the-footer.component.vue";
 import rentalApiService from "@/shared/services/rental-api.service.js";
 import locationApiService from "@/shared/services/location-api.service.js";
 import VehicleApiService from "@/shared/services/vehicle-api.service.js";
+import PaymentMethodApiService from "@/shared/services/payment-api.service.js";
 
 export default {
   components: {
@@ -69,11 +78,14 @@ export default {
       location_id: null,
       start_date: null,
       end_date: null,
+      payment_method_id: null,
       rental_status: "active",
     });
 
     const locations = ref([]);
     const selectedLocation = ref(null);
+    const paymentMethods = ref([]);
+    const selectedPaymentMethod = ref(null);
     const errorMessage = ref("");
     let map = null;
 
@@ -84,49 +96,55 @@ export default {
           errorMessage.value = "No se encontró el ID del vehículo en la URL.";
           return;
         }
-        // Obtener el vehículo para saber su companyId
         const vehicleRes = await VehicleApiService.getById(vehicleId);
         const vehicle = vehicleRes.data || vehicleRes;
         const companyId = vehicle.companyId;
 
-        // Obtener ubicaciones activas de esa compañía
         const res = await locationApiService.getAll();
         locations.value = (res.data || res)
-            .filter(
-                (loc) =>
-                    loc.location_status === "active" &&
-                    loc.company_id === companyId
-            )
+            .filter((loc) => loc.company_id === companyId && loc.location_status === "active")
             .map((loc) => ({
               id: loc.id,
-              label: `${loc.address} (${loc.latitude}, ${loc.longitude})`,
+              label: loc.address,
               latitude: loc.latitude,
               longitude: loc.longitude,
             }));
 
         if (locations.value.length) {
           const first = locations.value[0];
-          // Destruir el mapa anterior si existe
-          if (map) {
-            map.remove();
-          }
+          if (map) map.remove();
           map = L.map("map").setView([first.latitude, first.longitude], 13);
 
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: "© OpenStreetMap contributors"
+            attribution: "© OpenStreetMap contributors",
           }).addTo(map);
 
-          locations.value.forEach(loc => {
-            const marker = L.marker([loc.latitude, loc.longitude]).addTo(map);
-            marker.bindPopup(loc.label);
-            marker.on("click", () => {
-              selectedLocation.value = loc;
-              rental.value.location_id = loc.id;
-            });
+          locations.value.forEach((loc) => {
+            L.marker([loc.latitude, loc.longitude])
+                .addTo(map)
+                .bindPopup(loc.label)
+                .on("click", () => {
+                  selectedLocation.value = loc;
+                  rental.value.location_id = loc.id;
+                });
           });
         }
       } catch (error) {
         console.error("Error al obtener ubicaciones:", error);
+      }
+    };
+
+    const fetchPaymentMethods = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          errorMessage.value = "No se encontró el ID del usuario en el localStorage.";
+          return;
+        }
+        const res = await PaymentMethodApiService.getByUserId(userId);
+        paymentMethods.value = res.data || res;
+      } catch (error) {
+        console.error("Error al obtener métodos de pago:", error);
       }
     };
 
@@ -157,6 +175,11 @@ export default {
         errorMessage.value = "Por favor, selecciona una ubicación en el mapa.";
         return;
       }
+      if (!selectedPaymentMethod.value) {
+        errorMessage.value = "Por favor, selecciona un método de pago.";
+        return;
+      }
+      rental.value.payment_method_id = selectedPaymentMethod.value;
 
       try {
         await rentalApiService.create(rental.value);
@@ -168,12 +191,17 @@ export default {
       }
     };
 
-    onMounted(fetchLocations);
+    onMounted(() => {
+      fetchLocations();
+      fetchPaymentMethods();
+    });
 
     return {
       rental,
       locations,
       selectedLocation,
+      paymentMethods,
+      selectedPaymentMethod,
       errorMessage,
       validateAndCreateRental,
     };
@@ -301,6 +329,23 @@ label {
 
 .submit-btn:hover {
   background: linear-gradient(90deg, #1b5e20 60%, #388e3c 100%);
+}
+
+.payment-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #f9fafd;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.payment-select:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 6px rgba(25, 118, 210, 0.5);
+  background-color: #fff;
+  outline: none;
 }
 
 .error-message {

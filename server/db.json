@@ -312,7 +312,7 @@
       "location_id": "a6f2",
       "start_date": "2025-07-01T05:00:00.000Z",
       "end_date": "2025-07-15T05:00:00.000Z",
-      "rental_status": "pendiente"
+      "rental_status": "finished"
     },
     {
       "id": "38de",
@@ -330,6 +330,16 @@
       "location_id": "7479",
       "start_date": "2025-06-11T05:00:00.000Z",
       "end_date": "2025-06-13T05:00:00.000Z",
+      "rental_status": "active"
+    },
+    {
+      "id": "e6d8",
+      "vehicle_id": "632f",
+      "user_id": "1c57",
+      "location_id": "7479",
+      "start_date": "2025-06-21T05:00:00.000Z",
+      "end_date": "2025-06-24T05:00:00.000Z",
+      "payment_method_id": "cfdf",
       "rental_status": "active"
     }
   ],
