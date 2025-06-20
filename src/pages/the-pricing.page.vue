@@ -164,22 +164,19 @@ watch(
 </script>
 
 <style scoped>
-
-
-
 .pricing-container {
-  padding: 120px 20px 100px;
-  max-width: 100%;
-  margin: auto;
-  text-align: center;
-  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  box-sizing: border-box;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
+}
+
+.content {
+  flex: 1; /* Permite que el contenido crezca y empuje el footer hacia abajo */
+  margin: 0 auto;
+  padding: 40px 20px;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .title {
@@ -187,6 +184,7 @@ watch(
   font-weight: 700;
   margin-bottom: 2rem;
   color: #1b4332;
+  text-align: center;
 }
 
 .subtitle {
@@ -194,14 +192,7 @@ watch(
   font-weight: 600;
   margin-bottom: 1rem;
   color: #2d6a4f;
-}
-
-.vehicle-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
 .vehicle-dropdown {
@@ -213,15 +204,17 @@ watch(
 .vehicle-info-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 40px;
   flex-wrap: wrap;
-  animation: fadeIn 0.5s ease-in-out;
-
-
 }
 
 .vehicle-card,
 .form-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   flex: 1;
   min-width: 300px;
   max-width: 500px;
@@ -229,11 +222,8 @@ watch(
   border-radius: 20px;
   background: #ffffff;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-  animation: fadeUp 0.4s ease-in-out;
   transition: transform 0.3s;
   background: linear-gradient(90deg, #eaffda, #ffffff);
-
-
 }
 
 .vehicle-card:hover,
@@ -251,6 +241,16 @@ watch(
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #1b4332;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 .form-input {
@@ -278,34 +278,12 @@ watch(
   background-color: #1b4332;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 footer {
   background-color: #1b4332;
   padding: 10px 0;
   font-size: 15px;
   line-height: 24px;
   color: #d8f3dc;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-}
-
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  text-align: center;
 }
 </style>

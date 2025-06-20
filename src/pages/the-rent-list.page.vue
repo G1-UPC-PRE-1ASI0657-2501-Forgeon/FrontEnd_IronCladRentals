@@ -192,18 +192,16 @@ export default {
   object-fit: cover;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 .landlord-rentals {
-  background: linear-gradient(to bottom right, #f0f4f8, #d9e8e2);
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  padding-top: 120px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  background: linear-gradient(to bottom right, #f0f4f8, #d9e8e2);
 }
+
 
 .page-title {
   text-align: center;
@@ -219,6 +217,14 @@ export default {
   justify-content: center;
   gap: 20px;
   padding: 0 20px;
+}
+
+.content {
+  flex: 1; /* Permite que el contenido crezca y empuje el footer hacia abajo */
+  margin: 0 auto;
+  padding: 40px 20px;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .card1 {
@@ -258,10 +264,7 @@ footer {
   font-size: 15px;
   line-height: 24px;
   color: #737373;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  text-align: center;
 }
 
 header {

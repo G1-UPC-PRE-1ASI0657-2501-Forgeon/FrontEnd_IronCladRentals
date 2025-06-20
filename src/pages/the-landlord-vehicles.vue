@@ -242,14 +242,28 @@ export default {
 
 <style scoped>
 .landlord-vehicles {
-  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  padding-top: 100px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  background: linear-gradient(to bottom right, #a3d1b1, #a4ffaf);
+}
+
+.content {
+  flex: 1; /* Permite que el contenido crezca y empuje el footer hacia abajo */
+  margin: 0 auto;
+  padding: 40px 20px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+footer {
+  background-color: #2c3e50;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #e0e0e0;
+  text-align: center;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
 }
 
 .page-title {
@@ -257,23 +271,13 @@ export default {
   font-size: 2.5rem;
   color: #08351a;
   font-weight: bold;
-  position: fixed;
-  top: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  margin: 0;
+  margin-bottom: 20px;
 }
 
 .add-vehicle-container {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  z-index: 2;
+  margin-bottom: 20px;
 }
 
 .add-vehicle-button {
@@ -292,31 +296,24 @@ export default {
 }
 
 .cards-container {
-  position: fixed;
-  top: 32%;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  z-index: 1;
+  margin-top: 20px;
 }
 
 .card1 {
   width: 320px;
   background: linear-gradient(135deg, #d8f3dc, #ffffff);
   border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card1:hover {
   transform: scale(1.02);
-  box-shadow: 0 14px 28px rgba(0,0,0,0.15);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
 }
 
 .card-content {
@@ -329,7 +326,7 @@ export default {
   height: 180px;
   object-fit: cover;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .vehicle-title {
@@ -356,31 +353,14 @@ export default {
   color: #1d3a27;
 }
 
-footer {
-  background-color: #1a1a1a;
-  padding: 10px 0;
-  font-size: 15px;
-  line-height: 24px;
-  color: #737373;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-}
-
-.content {
-  position: relative;
-  z-index: 0;
-  padding-bottom: 100px;
-}
-
 header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -390,5 +370,17 @@ header {
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
   transform: scale(0.95);
+}
+
+@media (max-width: 1100px) {
+  .main-layout {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .form-container, .locations-list {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 </style>
