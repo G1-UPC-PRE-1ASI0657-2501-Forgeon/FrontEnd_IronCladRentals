@@ -2,7 +2,7 @@ import axios from "axios";
 import userService from "@/shared/services/user-api.service.js";
 
 const api = axios.create({
-    baseURL: "http://localhost:5056",
+    baseURL: "http://localhost:5056/ironclead/v1",
     withCredentials: true, // si usas cookies HttpOnly
     headers: {
         "Content-Type": "application/json",

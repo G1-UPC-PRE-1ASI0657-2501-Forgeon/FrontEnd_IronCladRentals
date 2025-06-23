@@ -1,4 +1,4 @@
-import api from "@/api/api.js";
+import api from "@/api/apiAuthService.js";
 
 const userService = {
     // 🔹 OBTENER TODOS LOS USUARIOS
@@ -68,13 +68,41 @@ const userService = {
     },
 
     // 🔹 LOGIN DE USUARIO
-    async login(username, password) {
+    async login(email, password) {
         try {
-            const response = await api.post("/authentication/sign-in", { username, password });
+            const response = await api.post("/authentication/sign-in", { email, password });
             return response.data;
         } catch (error) {
             console.error("❌ Error en login:", error);
             throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+     async register(userData) {
+        try {
+            const response = await api.post("/authentication/sign-up", userData);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error en login:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    async getInfoUser() {
+        try {
+            console.log("🔍 Haciendo petición a /auth-user/me...");
+            const response = await api.get("/AuthUser/me", {
+                withCredentials: true,
+                skipAuthInterceptor: true, // Bandera personalizada
+            });
+            console.log("✅ Usuario obtenido correctamente:", response.data);
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.warn("⚠️ Usuario no autenticado o token expirado.");
+                return null; // Devuelve null si no está autenticado
+            }
+            console.error("❌ Error obteniendo usuario:", error);
+            throw error; // Lanza otros errores
         }
     }
 };

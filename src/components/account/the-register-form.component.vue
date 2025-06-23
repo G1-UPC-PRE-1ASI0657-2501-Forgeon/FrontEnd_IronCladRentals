@@ -2,34 +2,48 @@
   <div class="registration-form-container" role="form" aria-label="Formulario de registro">
     <div class="registration-form">
       <h2>Registro</h2>      <div class="form-group">
-        <div class="input-field">
-          <pv-input-text type="text" id="names" v-model="names" required aria-label="Ingrese su nombre completo" placeholder="Nombre completo" />
-        </div>
-      </div>      <div class="form-group">
-        <div class="input-field">
-          <pv-input-text type="text" id="dni" v-model="dni" required aria-label="Ingrese su DNI" placeholder="DNI" />
-        </div>
-      </div>      <div class="form-group">
+      <div class="form-group">
         <div class="input-field">
           <pv-input-text type="email" id="email" v-model="email" required aria-label="Ingrese su correo electrónico" placeholder="Correo electrónico" />
         </div>
-      </div>      <div class="form-group">
-        <div class="input-field">
-          <pv-input-text type="tel" id="phone" v-model="phone" required aria-label="Ingrese su número de teléfono" placeholder="Teléfono" />
-        </div>
-      </div>      <div class="form-group">
-        <div class="input-field">
-          <select id="rol" v-model="rol" required aria-label="Seleccione su rol">
-            <option value="">Seleccionar rol</option>
-            <option value="true">Arrendador</option>
-            <option value="false">Arrendatario</option>
-          </select>
-        </div>
-      </div>      <div class="form-group">
+      </div> 
+       <div class="form-group">
         <div class="input-field">
           <input type="password" id="password" v-model="password" required aria-label="Ingrese su contraseña" placeholder="Contraseña" />
         </div>
-      </div>
+      </div>  
+        <div class="input-field">
+          <pv-input-text type="text" id="name" v-model="name" required aria-label="Ingrese su nombre completo" placeholder="Nombre completo" />
+        </div>
+      </div>      
+      <div class="form-group">
+        <div class="input-field">
+          <pv-input-text type="text" id="dni" v-model="dni" required aria-label="Ingrese su DNI" placeholder="DNI" />
+        </div>
+      </div>      
+       
+      <div class="form-group">
+        <div class="input-field">
+          <pv-input-text type="tel" id="phone" v-model="phone" required aria-label="Ingrese su número de teléfono" placeholder="Teléfono" />
+        </div>
+      </div>     
+       <div class="form-group">
+        <div class="input-field">
+          <select
+  id="role"
+  v-model="role"
+  required
+  aria-label="Seleccione su rol"
+>
+  <option value="">Seleccionar rol</option>
+  <option :value="true">Arrendador</option>
+  <option :value="false">Arrendatario</option>
+</select>
+
+
+        </div>
+      </div>      
+     
 
       <button @click="register" aria-label="Registrar">Registrar</button>
     </div>
@@ -44,43 +58,34 @@ export default {
   name: "TheRegisterForm",
   data() {
     return {
-      names: "",
+      name: "",
       dni: "",
       email: "",
       phone: "",
-      rol: "",      password: "",
+      role: "",      password: "",
     };
   },
   methods: {
     async register() {
       const body = {
-        names: this.names,
-        dni: this.dni,
         email: this.email,
-        phone_num: this.phone,
-        rol: this.rol === "true", // Convertir a booleano
         password: this.password,
+        name: this.name,
+        dni: this.dni,
+        phone: this.phone,
+        role: this.role, // Convertir a booleano
       };
 
       console.log("Datos a registrar:", body); // Verificar los datos enviados
 
-      try {
-        const response = await userService.create(body);
-        console.log("Respuesta de la API:", response); // Verificar la respuesta de la API
-
-        // Verificar si la respuesta tiene un id (esto indica que el usuario fue creado)
-        if (response && response.id) {
-          alert("Usuario registrado exitosamente");
-          await router.push("/login");
-        } else {
-          console.error("Error al registrar el usuario: Respuesta no contiene ID");
-          alert("Hubo un error en el registro.");
-        }
-      } catch (error) {
-        // Aquí registramos el error de forma detallada
-        console.error("Error al registrar el usuario:", error.response ? error.response.data : error.message);
-        alert("Hubo un problema al registrar el usuario. Por favor, intente nuevamente.");
-      }
+     try {
+  const response = await userService.register(body);
+  alert("Usuario registrado exitosamente");
+  await router.push("/login");
+} catch (error) {
+  console.error("Error al registrar:", error);
+  alert("Hubo un error al registrar el usuario.");
+}
     },
   },
 };

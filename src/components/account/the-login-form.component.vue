@@ -5,16 +5,16 @@
 
       <div class="form-group">
         <div class="input-label">
-          <label for="full_name">{{ $t('login.full_name') }}</label>
+          <label for="email">{{ $t('login.email') }}</label>
         </div>
         <div class="input-field">
           <input
               type="text"
-              id="full_name"
-              v-model="full_name"
+              id="email"
+              v-model="email"
               required
-              :aria-label="$t('login.full_name')"
-              placeholder="Ingrese su nombre completo"
+              :aria-label="$t('login.email')"
+              placeholder="Ingrese su email"
           />
         </div>
       </div>
@@ -49,52 +49,49 @@ export default {
   name: "TheLoginForm",
   data() {
     return {
-      full_name: "",
+      email: "",
       password: "",
     };
   },
   methods: {
-    async login() {
-      try {
-        const users = await userService.getAll();
-        const user = users.find((u) => u.names === this.full_name);
+   async login() {
+  try {
+    // 🔐 Primero haces login (esto guarda el token en la cookie)
+    await userService.login(this.email, this.password);
 
-        if (!user) {
-          alert("Usuario no encontrado");
-          return;
-        }
+    // 👤 Luego obtienes los datos del usuario desde el backend
+    const user = await userService.getInfoUser();
 
-        if (user.password === this.password) {
-          localStorage.setItem("rol", String(user.rol));
-          localStorage.setItem("userId", user.id);
-          localStorage.setItem("userName", user.names);
+    if (!user) {
+      alert("No se pudo obtener información del usuario");
+      return;
+    }
 
-          const userCompanyMap = JSON.parse(localStorage.getItem("userCompanyMap") || "{}");
-          const companyId = userCompanyMap[user.id];
+    const userCompanyMap = JSON.parse(localStorage.getItem("userCompanyMap") || "{}");
+    const companyId = userCompanyMap[user.id];
 
-          if (user.rol === true) {
-            // Usuario es arrendador
-            if (companyId) {
-              localStorage.setItem("companyId", companyId);
-              alert("Login exitoso. Redirigiendo a tu panel.");
-              await router.push("/landlord-vehicles");
-            } else {
-              alert("Login exitoso. Completa el registro de tu compañía.");
-              await router.push("/company-register");
-            }
-          } else {
-            // Usuario es arrendatario
-            alert("Login exitoso. Redirigiendo a tu panel.");
-            await router.push("/search-vehicles");
-          }
-        } else {
-          alert("Contraseña incorrecta");
-        }
-      } catch (error) {
-        console.error("Error en login:", error);
-        alert("Ocurrió un error al iniciar sesión");
+    if (user.role === true || user.role === "True") {
+      // Usuario arrendador
+      if (companyId) {
+        alert("Login exitoso. Redirigiendo a tu panel.");
+        await router.push("/landlord-vehicles");
+      } else {
+        alert("Login exitoso. Completa el registro de tu compañía.");
+        await router.push("/company-register");
       }
-    },
+    } else {
+      // Usuario arrendatario
+      alert("Login exitoso. Redirigiendo a tu panel.");
+      await router.push("/search-vehicles");
+    }
+
+  } catch (error) {
+    console.error("Error en login:", error);
+    alert("Ocurrió un error al iniciar sesión");
+  }
+}
+,
+
     async register() {
       await router.push("/register");
     },
