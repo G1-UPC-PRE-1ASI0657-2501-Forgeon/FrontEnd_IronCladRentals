@@ -1,29 +1,13 @@
-import axios from "axios";
-
-const http = axios.create({
-    baseURL: 'http://localhost:3000'
-});
+import api from "@/api/apiVehicleService.js";
 
 export class ModelApiService {
-    async getAll() {
-        return await http.get('models');
+  async getAll() {
+    try {
+      const response = await api.get("/models");
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error al obtener los modelos:", error);
+      throw error.response?.data || "Error de red o servidor";
     }
-
-    async getById(id) {
-        return await http.get(`models/${id}`);
-    }
-
-    async create(body) {
-        return await http.post('models', body);
-    }
-
-    async update(id, body) {
-        return await http.put(`models/${id}`, body);
-    }
-
-    async delete(id) {
-        return await http.delete(`models/${id}`);
-    }
+  }
 }
-
-export default new ModelApiService();

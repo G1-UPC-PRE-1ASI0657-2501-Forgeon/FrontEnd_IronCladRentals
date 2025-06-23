@@ -1,29 +1,13 @@
-import axios from "axios";
-
-const http = axios.create({
-    baseURL: 'http://localhost:3000'
-});
+import api from "@/api/apiVehicleService.js";
 
 export class BrandApiService {
-    async getAll() {
-        return await http.get('brands');
+  async getAll() {
+    try {
+      const response = await api.get("/brands");
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error al obtener las marcas:", error);
+      throw error.response?.data || "Error de red o servidor";
     }
-
-    async getById(id) {
-        return await http.get(`brands/${id}`);
-    }
-
-    async create(body) {
-        return await http.post('brands', body);
-    }
-
-    async update(id, body) {
-        return await http.put(`brands/${id}`, body);
-    }
-
-    async delete(id) {
-        return await http.delete(`brands/${id}`);
-    }
+  }
 }
-
-export default new BrandApiService();

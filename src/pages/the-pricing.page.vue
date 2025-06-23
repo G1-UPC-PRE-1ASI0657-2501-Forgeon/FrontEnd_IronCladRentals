@@ -4,30 +4,31 @@
 
     <h1 class="title">Asignar Precio a Vehículo</h1>
 
-    <!-- ✅ Mostrar el dropdown solo si vehicleOptions ya se llenó -->
     <Dropdown
-        v-if="vehicleOptions.length"
-        v-model="vehicle_id"
-        :options="vehicleOptions"
-        optionLabel="label"
-        optionValue="id"
-        placeholder="Selecciona un vehículo"
-        class="vehicle-dropdown"
-        @change="onVehicleChange"
+      v-if="vehicleOptions.length"
+      v-model="vehicle_id"
+      :options="vehicleOptions"
+      optionLabel="label"
+      optionValue="id"
+      placeholder="Selecciona un vehículo"
+      class="vehicle-dropdown"
+      @change="onVehicleChange"
     />
 
-    <!-- ✅ Mostrar solo si hay un vehículo seleccionado -->
     <div v-if="selectedVehicle" class="vehicle-info-container">
       <div class="vehicle-card">
-
         <h2 class="subtitle">Datos del Vehículo</h2>
         <p><strong>Marca:</strong> {{ selectedVehicle.brandName }}</p>
         <p><strong>Modelo:</strong> {{ selectedVehicle.modelName }}</p>
-        <p><strong>Equipaje (kg):</strong> {{ selectedVehicle.luggage_capacity }}</p>
+        <p><strong>Equipaje (kg):</strong> {{ selectedVehicle.luggageCapacity }}</p>
         <p><strong>Pasajeros:</strong> {{ selectedVehicle.passengers }}</p>
-        <p><strong>Disponible:</strong> {{ selectedVehicle.available }}</p>
-        <img :src="selectedVehicle.url" alt="Imagen del vehículo" class="vehicle-image mb-3" v-if="selectedVehicle.url" />
-
+        <p><strong>Disponible:</strong> {{ selectedVehicle.available ? 'Sí' : 'No' }}</p>
+        <img
+          v-if="selectedVehicle.imageUrl"
+          :src="selectedVehicle.imageUrl"
+          alt="Imagen del vehículo"
+          class="vehicle-image mb-3"
+        />
       </div>
 
       <div class="form-card">
@@ -39,11 +40,11 @@
       </div>
     </div>
   </div>
+
   <footer>
     <TheFooter />
   </footer>
 </template>
-
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
@@ -52,121 +53,81 @@ import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 
-import { VehicleApiService } from '@/shared/services/vehicle-api.service.js';
-import { PricingApiService } from '@/shared/services/pricing-api.service.js';
-import { BrandApiService } from '@/shared/services/brand-api.service.js';
-import { ModelApiService } from '@/shared/services/model-api.service.js';
+import vehicleService from '@/shared/services/vehicle-api.service.js';
+import pricingService from '@/shared/services/pricing-api.service.js';
 
 import TheHeaderSession from '@/components/elements/the-header-session.component.vue';
 import TheFooter from "@/components/elements/the-footer.component.vue";
 
 const route = useRoute();
-const vehicle_id = ref(null); // ✅ ahora no se asigna directamente
+const vehicle_id = ref(null);
 const selectedVehicle = ref(null);
 const price = ref('');
 const vehicles = ref([]);
 const vehicleOptions = ref([]);
-const brands = ref([]);
-const models = ref([]);
-
-const vehicleApi = new VehicleApiService();
-const pricingApi = new PricingApiService();
-const brandApi = new BrandApiService();
-const modelApi = new ModelApiService();
-
-const fetchBrandsAndModels = async () => {
-  const [brandsResponse, modelsResponse] = await Promise.all([
-    brandApi.getAll(),
-    modelApi.getAll()
-  ]);
-  brands.value = brandsResponse.data;
-  models.value = modelsResponse.data;
-};
 
 const fetchVehicles = async () => {
-  await fetchBrandsAndModels();
+  try {
+    const vehicleList = await vehicleService.getAvailable();
+    vehicles.value = vehicleList;
 
-  const response = await vehicleApi.getAll();
-  vehicles.value = response.data;
-
-  vehicleOptions.value = vehicles.value.map(v => {
-    const brand = brands.value.find(b => b.id === v.brand_id);
-    const model = models.value.find(m => m.id === v.model_id);
-
-    return {
+    vehicleOptions.value = vehicleList.map(v => ({
       id: v.id,
-      label: `${brand?.brand_name ?? 'Desconocida'} ${model?.car_model ?? 'Desconocido'}`,
-      value: v.id
-    };
-  });
+      label: `${v.brandName} ${v.modelName}`,
+    }));
 
-  // ✅ después de tener los vehículos, aplicamos la selección desde la ruta
-  const idFromRoute = parseInt(route.params.vehicle_id);
-  if (!isNaN(idFromRoute)) {
-    vehicle_id.value = idFromRoute;
-    loadSelectedVehicle(idFromRoute);
+    const idFromRoute = parseInt(route.params.vehicle_id);
+    if (!isNaN(idFromRoute)) {
+      vehicle_id.value = idFromRoute;
+      loadSelectedVehicle(idFromRoute);
+    }
+  } catch (error) {
+    console.error("❌ Error cargando vehículos:", error);
   }
 };
 
 const loadSelectedVehicle = (id) => {
   const v = vehicles.value.find(v => v.id === id);
-  if (!v) return;
-
-  const brand = brands.value.find(b => b.id === v.brand_id);
-  const model = models.value.find(m => m.id === v.model_id);
-
-  selectedVehicle.value = {
-    ...v,
-    brandName: brand?.brand_name ?? 'Desconocida',
-    modelName: model?.car_model ?? 'Desconocido'
-  };
+  selectedVehicle.value = v || null;
 };
 
 const onVehicleChange = () => {
-  if (vehicle_id.value) {
-    loadSelectedVehicle(vehicle_id.value);
-  } else {
-    selectedVehicle.value = null;
-  }
+  loadSelectedVehicle(vehicle_id.value);
 };
 
 const savePricing = async () => {
-  if (!selectedVehicle.value) return;
-
-  const pricing = {
-    vehicle_id: selectedVehicle.value.id,
-    price: parseFloat(price.value),
-  };
+  if (!selectedVehicle.value || isNaN(parseFloat(price.value))) {
+    alert("Por favor selecciona un vehículo y un precio válido.");
+    return;
+  }
 
   try {
-    await pricingApi.create(pricing);
+    await pricingService.create({
+      vehicle_id: selectedVehicle.value.id,
+      price: parseFloat(price.value),
+    });
     alert('✅ Precio asignado correctamente');
   } catch (error) {
+    console.error('❌ Error al asignar precio:', error);
     alert('❌ Error al asignar precio');
-    console.error(error);
   }
 };
 
 onMounted(fetchVehicles);
 
-// ✅ detectar si la ruta cambia mientras estás en la página
 watch(
-    () => route.params.vehicle_id,
-    (newId) => {
-      const id = parseInt(newId);
-      if (!isNaN(id) && vehicles.value.length > 0) {
-        vehicle_id.value = id;
-        loadSelectedVehicle(id);
-      }
+  () => route.params.vehicle_id,
+  (newId) => {
+    const id = parseInt(newId);
+    if (!isNaN(id) && vehicles.value.length > 0) {
+      vehicle_id.value = id;
+      loadSelectedVehicle(id);
     }
+  }
 );
-
 </script>
 
 <style scoped>
-
-
-
 .pricing-container {
   padding: 120px 20px 100px;
   max-width: 100%;
@@ -201,7 +162,7 @@ watch(
   height: 180px;
   object-fit: cover;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .vehicle-dropdown {
@@ -216,8 +177,6 @@ watch(
   gap: 40px;
   flex-wrap: wrap;
   animation: fadeIn 0.5s ease-in-out;
-
-
 }
 
 .vehicle-card,
@@ -227,13 +186,10 @@ watch(
   max-width: 500px;
   padding: 25px;
   border-radius: 20px;
-  background: #ffffff;
+  background: linear-gradient(90deg, #eaffda, #ffffff);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
   animation: fadeUp 0.4s ease-in-out;
   transition: transform 0.3s;
-  background: linear-gradient(90deg, #eaffda, #ffffff);
-
-
 }
 
 .vehicle-card:hover,
@@ -279,13 +235,25 @@ watch(
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 footer {

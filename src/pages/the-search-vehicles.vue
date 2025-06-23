@@ -7,51 +7,45 @@
       <h1 class="page-title">Buscar Vehículos</h1>
       <div class="filters">
         <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Buscar por modelo"
-            class="search-bar"
-            aria-label="Buscar por modelo"
+          type="text"
+          v-model="searchQuery"
+          placeholder="Buscar por modelo"
+          class="search-bar"
+          aria-label="Buscar por modelo"
         />
         <select v-model="selectedBrand" class="brand-filter" aria-label="Filtrar por marca">
           <option value="">Todas las marcas</option>
-          <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-            {{ brand.brand_name }}
+          <option v-for="brand in brandOptions" :key="brand" :value="brand">
+            {{ brand }}
           </option>
         </select>
         <div class="price-filter">
           <label for="priceRange">Precio máx: S/ {{ maxPrice }}</label>
-          <input
-              id="priceRange"
-              type="range"
-              min="50"
-              :max="realMaxPrice"
-              v-model="maxPrice"
-              step="10"
-          />
+        <input id="priceRange" type="range" min="50" :max="realMaxPrice" v-model="maxPrice" step="1" />
+
         </div>
       </div>
+
       <transition-group name="card" tag="div" class="cards-container">
         <div
-            v-for="vehicle in filteredVehicles"
-            :key="vehicle.id"
-            class="card"
-            @click="$router.push(`/vehicle/${vehicle.id}`)"
-            role="button"
-            tabindex="0"
-            @keyup.enter="$router.push(`/vehicle/${vehicle.id}`)"
+          v-for="vehicle in filteredVehicles"
+          :key="vehicle.id"
+          class="card"
+          @click="$router.push(`/vehicle/${vehicle.id}`)"
+          role="button"
+          tabindex="0"
+          @keyup.enter="$router.push(`/vehicle/${vehicle.id}`)"
         >
           <div class="card-content">
-            <img :src="vehicle.url" alt="Imagen del vehículo" class="vehicle-img" />
-            <h2 class="vehicle-title">{{ getBrandName(vehicle.brand_id) }} - {{ getModelName(vehicle.model_id) }}</h2>
-            <p class="vehicle-info">
-              <span>🚗 Pasajeros:</span> {{ vehicle.passengers }}
-            </p>
-            <p class="vehicle-info">
-              <span>🧳 Equipaje:</span> {{ vehicle.luggage_capacity }}
-            </p>
+            <img :src="vehicle.imageUrl" alt="Imagen del vehículo" class="vehicle-img" />
+            <h2 class="vehicle-title">
+              {{ vehicle.brandName }} - {{ vehicle.modelName }}
+            </h2>
+            <p class="vehicle-info"><span>🚗 Pasajeros:</span> {{ vehicle.passengers }}</p>
+            <p class="vehicle-info"><span>🧳 Equipaje:</span> {{ vehicle.luggageCapacity }}</p>
             <p class="vehicle-price">
-              <span>💵 Precio:</span> {{ getVehiclePrice(vehicle.id) }}
+              <span>💵 Precio:</span>
+              {{ vehicle.pricing?.dailyRate ? `S/ ${vehicle.pricing.dailyRate}` : 'No disponible' }}
             </p>
           </div>
         </div>
@@ -64,107 +58,77 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import TheHeaderSession from "@/components/elements/the-header-session.component.vue";
-import TheFooter from "@/components/elements/the-footer.component.vue";
-import { VehicleApiService } from "@/shared/services/vehicle-api.service.js";
-import { BrandApiService } from "@/shared/services/brand-api.service.js";
-import { ModelApiService } from "@/shared/services/model-api.service.js";
-import { PricingApiService } from "@/shared/services/pricing-api.service.js";
+import { ref, computed, onMounted } from 'vue';
+import TheHeaderSession from '@/components/elements/the-header-session.component.vue';
+import TheFooter from '@/components/elements/the-footer.component.vue';
+import vehicleService from '@/shared/services/vehicle-api.service.js';
 
 export default {
-  name: "SearchVehicles",
-  components: {
-    TheHeaderSession,
-    TheFooter,
-  },
-  setup() {
-    const vehicles = ref([]);
-    const brands = ref([]);
-    const models = ref([]);
-    const pricings = ref([]);
-    const searchQuery = ref("");
-    const selectedBrand = ref("");
-    const minPrice = ref(50);
-    const maxPrice = ref(1000);
+  name: 'SearchVehicles',
+  components: { TheHeaderSession, TheFooter },
+setup() {
+  const vehicles = ref([]);
+  const searchQuery = ref('');
+  const selectedBrand = ref('');
+  const minPrice = ref(50);
+  const maxPrice = ref(1000);
+  const realMaxPrice = ref(1000);
 
-    const vehicleApiService = new VehicleApiService();
-    const brandApiService = new BrandApiService();
-    const modelApiService = new ModelApiService();
-    const pricingApiService = new PricingApiService();
+const fetchVehicles = async () => {
+  try {
+    const data = await vehicleService.getAvailable();
+    if (Array.isArray(data)) {
+      vehicles.value = data;
 
-    const realMaxPrice = computed(() => {
-      if (!pricings.value.length) return 1000;
-      return Math.max(...pricings.value.map(p => p.price));
+      const prices = data.map(v => v?.pricing?.dailyRate).filter(p => typeof p === 'number');
+      const max = prices.length ? Math.max(...prices) : 1000;
+
+      realMaxPrice.value = max;
+      maxPrice.value = max; // valor inicial del slider
+    }
+  } catch (error) {
+    console.error('❌ Error cargando los datos:', error);
+    vehicles.value = [];
+  }
+};
+
+
+  const brandOptions = computed(() => {
+    const brands = new Set(vehicles.value.map(v => v.brandName).filter(Boolean));
+    return [...brands];
+  });
+
+  const filteredVehicles = computed(() => {
+    return vehicles.value.filter(vehicle => {
+      const matchesBrand = !selectedBrand.value || vehicle.brandName === selectedBrand.value;
+      const matchesSearch =
+        !searchQuery.value ||
+        (vehicle.modelName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ?? false);
+      const price = vehicle.pricing?.dailyRate ?? null;
+      const matchesPrice =
+        price !== null && price >= minPrice.value && price <= maxPrice.value;
+      return matchesBrand && matchesSearch && matchesPrice;
     });
+  });
 
-    const fetchAll = async () => {
-      const [v, b, m, p] = await Promise.all([
-        vehicleApiService.getAll(),
-        brandApiService.getAll(),
-        modelApiService.getAll(),
-        pricingApiService.getAll(),
-      ]);
-      vehicles.value = v.data.filter((vehicle) => vehicle.available);
-      brands.value = b.data;
-      models.value = m.data;
-      pricings.value = p.data;
-      maxPrice.value = realMaxPrice.value;
-    };
+  onMounted(fetchVehicles);
 
-    const getBrandName = (id) => {
-      const brand = brands.value.find((b) => b.id === id);
-      return brand ? brand.brand_name : "Desconocido";
-    };
-
-    const getModelName = (id) => {
-      const model = models.value.find((m) => m.id === id);
-      return model ? model.car_model : "Desconocido";
-    };
-
-    const getVehiclePrice = (vehicleId) => {
-      const pricing = pricings.value.find((p) => p.vehicle_id === vehicleId);
-      return pricing ? `S/ ${pricing.price}` : "No disponible";
-    };
-
-    const getVehiclePriceNumber = (vehicleId) => {
-      const pricing = pricings.value.find((p) => p.vehicle_id === vehicleId);
-      return pricing ? pricing.price : null;
-    };
-
-    const filteredVehicles = computed(() => {
-      return vehicles.value.filter((vehicle) => {
-        const price = getVehiclePriceNumber(vehicle.id);
-        const matchesPrice = price !== null && price >= minPrice.value && price <= maxPrice.value;
-        const matchesSearch =
-            !searchQuery.value ||
-            getModelName(vehicle.model_id)
-                .toLowerCase()
-                .includes(searchQuery.value.toLowerCase());
-        const matchesBrand =
-            !selectedBrand.value || vehicle.brand_id === selectedBrand.value;
-        return matchesSearch && matchesBrand && matchesPrice;
-      });
-    });
-
-    onMounted(fetchAll);
-
-    return {
-      vehicles,
-      brands,
-      searchQuery,
-      selectedBrand,
-      filteredVehicles,
-      getBrandName,
-      getModelName,
-      getVehiclePrice,
-      minPrice,
-      maxPrice,
-      realMaxPrice
-    };
-  },
+  return {
+    vehicles,
+    searchQuery,
+    selectedBrand,
+    filteredVehicles,
+    minPrice,
+    maxPrice,
+    realMaxPrice,
+    brandOptions,
+  };
+}
+,
 };
 </script>
+
+
 
 <style scoped>
 .content {

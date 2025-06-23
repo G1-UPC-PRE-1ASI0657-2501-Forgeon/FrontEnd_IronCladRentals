@@ -1,176 +1,136 @@
-<script setup>
-import { ref, onMounted } from 'vue';
-import rentalService from '@/shared/services/rental-api.service.js';
-import VehicleApiService from '@/shared/services/vehicle-api.service.js';
-import ModelApiService from '@/shared/services/model-api.service.js';
-import BrandApiService from '@/shared/services/brand-api.service.js';
-import TheHeaderSession from '@/components/elements/the-header-session.component.vue';
-import TheFooter from '@/components/elements/the-footer.component.vue';
-
-const userId = localStorage.getItem('userId');
-const activeRental = ref(null);
-const pastRentals = ref([]);
-const vehicle = ref(null);
-const modelName = ref('');
-const brandName = ref('');
-
-const showModal = ref(false);
-const selectedRental = ref(null);
-const selectedVehicle = ref(null);
-const selectedModelName = ref('');
-const selectedBrandName = ref('');
-
-function formatShortDate(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-}
-
-async function fetchRentals() {
-  if (!userId) return;
-  try {
-    const rentals = await rentalService.getByUserId(userId);
-    activeRental.value = rentals.find(r => r.rental_status === 'pendiente' || r.rental_status === 'active');
-    pastRentals.value = rentals.filter(r => r.rental_status !== 'pendiente' && r.rental_status !== 'active');
-    if (activeRental.value && activeRental.value.vehicle_id) {
-      const v = await VehicleApiService.getById(activeRental.value.vehicle_id);
-      vehicle.value = v.data;
-      if (vehicle.value && vehicle.value.model_id) {
-        const m = await ModelApiService.getById(vehicle.value.model_id);
-        modelName.value = m.data.car_model;
-      }
-      if (vehicle.value && vehicle.value.brand_id) {
-        const b = await BrandApiService.getById(vehicle.value.brand_id);
-        brandName.value = b.data.brand_name;
-      }
-    }
-  } catch (e) {
-    console.error('Error cargando rentas:', e);
-  }
-}
-
-onMounted(fetchRentals);
-
-async function openRentalModal(rental) {
-  selectedRental.value = rental;
-  if (rental.vehicle_id) {
-    const v = await VehicleApiService.getById(rental.vehicle_id);
-    selectedVehicle.value = v.data;
-    if (selectedVehicle.value && selectedVehicle.value.model_id) {
-      const m = await ModelApiService.getById(selectedVehicle.value.model_id);
-      selectedModelName.value = m.data.car_model;
-    }
-    if (selectedVehicle.value && selectedVehicle.value.brand_id) {
-      const b = await BrandApiService.getById(selectedVehicle.value.brand_id);
-      selectedBrandName.value = b.data.brand_name;
-    }
-  }
-  showModal.value = true;
-}
-
-function closeModal() {
-  showModal.value = false;
-  selectedRental.value = null;
-  selectedVehicle.value = null;
-  selectedModelName.value = '';
-  selectedBrandName.value = '';
-}
-
-async function cancelActiveRental() {
-  if (!activeRental.value) return;
-  const confirmCancel = window.confirm('¿Seguro que deseas cancelar esta reserva?');
-  if (!confirmCancel) return;
-  try {
-    await rentalService.update(activeRental.value.id, {
-      ...activeRental.value,
-      rental_status: 'finished'
-    });
-    await fetchRentals();
-    alert('Reserva cancelada correctamente.');
-  } catch (e) {
-    alert('Error al cancelar la reserva.');
-  }
-}
-</script>
-
 <template>
-  <div class="active-rent-page">
+  <div class="search-vehicles">
     <header>
       <TheHeaderSession />
     </header>
-
     <main class="content">
-      <aside class="past-rentals">
-        <h3>Rentas Pasadas</h3>
-        <ul class="rentals-list">
-          <li
-              v-for="r in pastRentals"
-              :key="r.id"
-              class="rental-item"
-              @click="openRentalModal(r)"
-              style="cursor:pointer"
-          >
-            <span class="rental-date"><b>📅 {{ formatShortDate(r.start_date || r.rental_start) }}</b></span>
-          </li>
-        </ul>
-      </aside>
-
-      <section class="active-rental">
-        <transition name="fade-pop" mode="out-in">
-          <div v-if="activeRental" class="active-card" key="with-active">
-            <div class="active-header">
-              <h2>Renta Actual</h2>
-              <button class="cancel-btn" @click="cancelActiveRental">Cancelar</button>
-            </div>
-            <div class="card-layout">
-              <div class="vehicle-column">
-                <img v-if="vehicle" :src="vehicle.url" alt="Imagen del vehículo" class="vehicle-img" />
-                <p v-if="brandName"><strong>Marca:</strong> {{ brandName }}</p>
-                <p v-if="modelName"><strong>Modelo:</strong> {{ modelName }}</p>
-                <p v-if="vehicle"><strong>Pasajeros:</strong> {{ vehicle.passengers }}</p>
-                <p v-if="vehicle"><strong>Equipaje:</strong> {{ vehicle.luggage_capacity }}</p>
-              </div>
-              <div class="rental-column">
-                <p><strong>📅 Inicio:</strong> {{ formatShortDate(activeRental.start_date || activeRental.rental_start) }}</p>
-                <p><strong>⏰ Fin:</strong> {{ formatShortDate(activeRental.end_date || activeRental.rental_end) }}</p>
-                <p><strong>🔄 Estado:</strong> {{ activeRental.rental_status }}</p>
-              </div>
-            </div>
-          </div>
-          <div v-else class="no-active-card" key="no-active">
-            <h2>No tienes una renta activa</h2>
-          </div>
-        </transition>
-      </section>
-
-      <!-- Modal renta pasada -->
-      <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-        <div class="modal-card">
-          <button class="close-btn" @click="closeModal">✖</button>
-          <h3>Detalle de Renta Pasada</h3>
-          <div class="card-layout">
-            <div class="vehicle-column">
-              <img v-if="selectedVehicle" :src="selectedVehicle.url" alt="Imagen del vehículo" class="vehicle-img" />
-              <p v-if="selectedBrandName"><strong>Marca:</strong> {{ selectedBrandName }}</p>
-              <p v-if="selectedModelName"><strong>Modelo:</strong> {{ selectedModelName }}</p>
-              <p v-if="selectedVehicle"><strong>Pasajeros:</strong> {{ selectedVehicle.passengers }}</p>
-              <p v-if="selectedVehicle"><strong>Equipaje:</strong> {{ selectedVehicle.luggage_capacity }}</p>
-            </div>
-            <div class="rental-column">
-              <p><strong>📅 Inicio:</strong> {{ formatShortDate(selectedRental.start_date || selectedRental.rental_start) }}</p>
-              <p><strong>⏰ Fin:</strong> {{ formatShortDate(selectedRental.end_date || selectedRental.rental_end) }}</p>
-              <p><strong>🔄 Estado:</strong> {{ selectedRental.rental_status }}</p>
-            </div>
-          </div>
+      <h1 class="page-title">Buscar Vehículos</h1>
+      <div class="filters">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Buscar por modelo"
+          class="search-bar"
+          aria-label="Buscar por modelo"
+        />
+        <select v-model="selectedBrand" class="brand-filter" aria-label="Filtrar por marca">
+          <option value="">Todas las marcas</option>
+          <option v-for="brand in uniqueBrands" :key="brand" :value="brand">
+            {{ brand }}
+          </option>
+        </select>
+        <div class="price-filter">
+          <label for="priceRange">Precio máx: S/ {{ maxPrice }}</label>
+          <input
+            id="priceRange"
+            type="range"
+            min="50"
+            :max="realMaxPrice"
+            v-model="maxPrice"
+            step="10"
+          />
         </div>
       </div>
-    </main>
 
+      <transition-group name="card" tag="div" class="cards-container">
+        <div
+          v-for="vehicle in filteredVehicles"
+          :key="vehicle.id"
+          class="card"
+          @click="$router.push(`/vehicle/${vehicle.id}`)"
+          role="button"
+          tabindex="0"
+          @keyup.enter="$router.push(`/vehicle/${vehicle.id}`)"
+        >
+          <div class="card-content">
+            <img :src="vehicle.url" alt="Imagen del vehículo" class="vehicle-img" />
+            <h2 class="vehicle-title">
+              {{ vehicle.brandName }} - {{ vehicle.modelName }}
+            </h2>
+            <p class="vehicle-info"><span>🚗 Pasajeros:</span> {{ vehicle.passengers }}</p>
+            <p class="vehicle-info"><span>🧳 Equipaje:</span> {{ vehicle.luggage_capacity }}</p>
+            <p class="vehicle-price"><span>💵 Precio:</span> {{ formatPrice(vehicle.price) }}</p>
+          </div>
+        </div>
+      </transition-group>
+    </main>
     <footer>
       <TheFooter />
     </footer>
   </div>
 </template>
+
+<script>
+import { ref, computed, onMounted } from "vue";
+import TheHeaderSession from "@/components/elements/the-header-session.component.vue";
+import TheFooter from "@/components/elements/the-footer.component.vue";
+import vehicleService from "@/shared/services/vehicle-api.service.js";
+
+export default {
+  name: "SearchVehicles",
+  components: {
+    TheHeaderSession,
+    TheFooter,
+  },
+  setup() {
+    const vehicles = ref([]);
+    const searchQuery = ref("");
+    const selectedBrand = ref("");
+    const minPrice = ref(50);
+    const maxPrice = ref(1000);
+
+    const fetchAvailableVehicles = async () => {
+      try {
+        const response = await vehicleService.getAvailable();
+        vehicles.value = response.map(v => ({
+          ...v,
+          price: parseFloat(v.price)
+        }));
+        maxPrice.value = realMaxPrice.value;
+      } catch (error) {
+        console.error("❌ Error cargando vehículos:", error);
+      }
+    };
+
+    const uniqueBrands = computed(() => {
+      const allBrands = vehicles.value.map(v => v.brandName);
+      return [...new Set(allBrands)].sort();
+    });
+
+    const realMaxPrice = computed(() => {
+      if (!vehicles.value.length) return 1000;
+      return Math.max(...vehicles.value.map(v => v.price || 0));
+    });
+
+    const filteredVehicles = computed(() => {
+      return vehicles.value.filter((v) => {
+        const matchesSearch = !searchQuery.value ||
+          v.modelName.toLowerCase().includes(searchQuery.value.toLowerCase());
+        const matchesBrand = !selectedBrand.value || v.brandName === selectedBrand.value;
+        const matchesPrice = v.price >= minPrice.value && v.price <= maxPrice.value;
+        return matchesSearch && matchesBrand && matchesPrice;
+      });
+    });
+
+    const formatPrice = (price) => {
+      return price ? `S/ ${price.toFixed(2)}` : "No disponible";
+    };
+
+    onMounted(fetchAvailableVehicles);
+
+    return {
+      vehicles,
+      searchQuery,
+      selectedBrand,
+      filteredVehicles,
+      formatPrice,
+      uniqueBrands,
+      maxPrice,
+      realMaxPrice,
+    };
+  },
+};
+</script>
 
 <style scoped>
 .vehicle-info,

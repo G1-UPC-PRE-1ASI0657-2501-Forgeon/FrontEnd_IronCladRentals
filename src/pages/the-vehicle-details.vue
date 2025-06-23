@@ -6,11 +6,11 @@
 
     <div class="content">
       <div class="details-card">
-        <img v-if="vehicle.url" :src="vehicle.url" alt="Imagen del vehículo" class="vehicle-img" />
+        <img v-if="vehicle.imageUrl" :src="vehicle.imageUrl" alt="Imagen del vehículo" class="vehicle-img" />
         <h1 class="vehicle-title">
-          <span class="brand">{{ brandName }}</span>
+          <span class="brand">{{ vehicle.brandName }}</span>
           <span class="divider">-</span>
-          <span class="model">{{ modelName }}</span>
+          <span class="model">{{ vehicle.modelName }}</span>
         </h1>
 
         <div class="attributes">
@@ -22,7 +22,7 @@
           <div class="attr">
             <span class="icon">🧳</span>
             <span class="label">Equipaje:</span>
-            <span class="value">{{ vehicle.luggage_capacity }}</span>
+            <span class="value">{{ vehicle.luggageCapacity }}</span>
           </div>
           <div class="attr">
             <span class="icon">✔️</span>
@@ -37,23 +37,22 @@
           <span class="label">Descripción:</span>
           <span class="value">{{ vehicle.description }}</span>
         </p>
-        <p class="vehicle-info" v-if="vehicle.free_text">
+        <p class="vehicle-info" v-if="vehicle.freeText">
           <span class="label">Texto adicional:</span>
-          <span class="value">{{ vehicle.free_text }}</span>
+          <span class="value">{{ vehicle.freeText }}</span>
         </p>
 
         <div class="vehicle-price">
           <span class="icon">💵</span>
           <span class="label">Precio:</span>
-          <span class="value">{{ price }}</span>
+          <span class="value">
+            {{ vehicle.pricing?.dailyRate ? `S/ ${vehicle.pricing.dailyRate}` : 'No disponible' }}
+          </span>
         </div>
 
-        <Button label="Volver" class="p-button-secondary" @click="$router.push('/search-vehicles')">Regresar</button>
-
+        <Button label="Volver" class="p-button-secondary" @click="$router.push('/search-vehicles')" />
         <router-link :to="`/rent/${vehicle.id}`">
-          <button class="p-button-secondary">
-            Rentar este vehículo
-          </button>
+          <button class="p-button-secondary">Rentar este vehículo</button>
         </router-link>
       </div>
     </div>
@@ -69,10 +68,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import TheHeaderSession from "@/components/elements/the-header-session.component.vue";
 import TheFooter from "@/components/elements/the-footer.component.vue";
-import { VehicleApiService } from "@/shared/services/vehicle-api.service.js";
-import { BrandApiService } from "@/shared/services/brand-api.service.js";
-import { ModelApiService } from "@/shared/services/model-api.service.js";
-import { PricingApiService } from "@/shared/services/pricing-api.service.js";
+import vehicleService from "@/shared/services/vehicle-api.service.js";
 
 export default {
   name: "VehicleDetails",
@@ -83,32 +79,14 @@ export default {
   setup() {
     const route = useRoute();
     const vehicle = ref({});
-    const brandName = ref("");
-    const modelName = ref("");
-    const price = ref("No disponible");
-
-    const vehicleApiService = new VehicleApiService();
-    const brandApiService = new BrandApiService();
-    const modelApiService = new ModelApiService();
-    const pricingApiService = new PricingApiService();
 
     const fetchVehicleDetails = async () => {
       try {
-        const vehicleId = route.params.id;
-        const v = await vehicleApiService.getById(vehicleId);
-        vehicle.value = v.data;
-
-        const brand = await brandApiService.getById(vehicle.value.brand_id);
-        brandName.value = brand.data.brand_name;
-
-        const model = await modelApiService.getById(vehicle.value.model_id);
-        modelName.value = model.data.car_model;
-
-        const pricings = await pricingApiService.getAll();
-        const pricing = pricings.data.find(p => p.vehicle_id === vehicleId);
-        price.value = pricing ? `S/ ${pricing.price}` : "No disponible";
+        const vehicleId = Number(route.params.id);
+        const res = await vehicleService.getById(vehicleId);
+        vehicle.value = res.data;
       } catch (error) {
-        console.error("Error al obtener los detalles del vehículo:", error);
+        console.error("❌ Error al obtener los detalles del vehículo:", error);
       }
     };
 
@@ -116,9 +94,6 @@ export default {
 
     return {
       vehicle,
-      brandName,
-      modelName,
-      price,
     };
   },
 };
@@ -126,12 +101,12 @@ export default {
 
 <style scoped>
 .vehicle-details {
-  background: #f0f8f4; /* verde pálido suave */
+  background: #f0f8f4;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 60px; /* espacio para el header fijo */
-  padding-bottom: 50px; /* espacio para el footer fijo */
+  padding-top: 60px;
+  padding-bottom: 50px;
 }
 
 header {
@@ -171,6 +146,7 @@ footer {
   align-items: center;
   box-sizing: border-box;
 }
+
 .details-card {
   background: #ffffff;
   border-radius: 20px;
@@ -282,11 +258,5 @@ footer {
 .p-button-secondary:hover {
   background-color: #2e7d32;
   transform: scale(1.05);
-}
-
-/* Animación */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 </style>

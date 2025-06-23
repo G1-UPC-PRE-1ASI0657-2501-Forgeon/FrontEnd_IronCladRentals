@@ -1,28 +1,81 @@
-import axios from "axios";
+import api from "@/api/apiVehicleService"; // Asegúrate de que este apunta a tu instancia de axios configurada
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5162";
 
-const http = axios.create({
-    baseURL:'http://localhost:3000'
-})
-export class VehicleApiService {
-    async getAll() {
-        return await http.get('vehicles')
+const vehicleService = {
+  // 🔹 OBTENER TODOS LOS VEHÍCULOS
+  async getAll() {
+    try {
+      const response = await api.get("/vehicle");
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error obteniendo todos los vehículos:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
     }
+  },
 
-    async getById(id) {
-        return await http.get(`vehicles/`+id)
+  // 🔹 OBTENER VEHÍCULOS DISPONIBLES
+async getAvailable() {
+  try {
+    const response = await api.get("/vehicle/available");
+    const vehicles = response.data;
+
+    // Arregla las URLs de imagen
+    return vehicles.map(vehicle => ({
+      ...vehicle,
+      imageUrl: vehicle.imageUrl?.startsWith("http")
+        ? vehicle.imageUrl
+        : `${BASE_URL}${vehicle.imageUrl}`
+    }));
+  } catch (error) {
+    console.error("❌ Error obteniendo vehículos disponibles:", error);
+    throw error.response ? error.response.data : "Error de red o del servidor";
+  }
+},
+
+
+  // 🔹 OBTENER VEHÍCULO POR ID
+  async getById(id) {
+    try {
+      const response = await api.get(`/vehicle/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error obteniendo vehículo por ID:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
     }
+  },
 
-    async create(body) {
-        return await http.post('vehicles', body)
+  // 🔹 CREAR VEHÍCULO
+  async create(vehicleData) {
+    try {
+      const response = await api.post("/vehicle", vehicleData);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error creando vehículo:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
     }
+  },
 
-    async update(id, body) {
-        return await http.put(`vehicles/`+id, body)
+  // 🔹 ACTUALIZAR VEHÍCULO
+  async update(id, vehicleData) {
+    try {
+      const response = await api.put(`/vehicle/${id}`, vehicleData);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error actualizando vehículo:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
     }
+  },
 
-    async delete(id) {
-        return await http.delete(`vehicles/`+id)
+  // 🔹 ELIMINAR VEHÍCULO
+  async delete(id) {
+    try {
+      await api.delete(`/vehicle/${id}`);
+      console.log("✅ Vehículo eliminado correctamente.");
+    } catch (error) {
+      console.error("❌ Error eliminando vehículo:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
     }
-}
+  }
+};
 
-export default new VehicleApiService();
+export default vehicleService;
