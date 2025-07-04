@@ -55,6 +55,17 @@ async getAvailable() {
     }
   },
 
+  async createCompany(companyData) {
+    try {
+      const response = await api.post("/companies", companyData);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error creando compania:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
+    }
+  },
+
+
   // 🔹 ACTUALIZAR VEHÍCULO
   async update(id, vehicleData) {
     try {
@@ -75,7 +86,24 @@ async getAvailable() {
       console.error("❌ Error eliminando vehículo:", error);
       throw error.response ? error.response.data : "Error de red o del servidor";
     }
-  }
+  },
+    async getCompanyMe() {
+        try {
+            const response = await api.get("/companies/me", {
+                withCredentials: true,
+                skipAuthInterceptor: true, // Bandera personalizada
+            });
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                return null; // Devuelve null si no está autenticado
+            }
+            console.error("❌ Error obteniendo usuario:", error);
+            throw error; // Lanza otros errores
+        }  
+    }
+
+  
 };
 
 export default vehicleService;

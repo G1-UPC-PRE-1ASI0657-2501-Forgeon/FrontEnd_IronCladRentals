@@ -44,7 +44,7 @@
 <script>
 import userService from "@/shared/services/user-api.service.js";
 import router from "@/router.js";
-
+import vehicleService from "@/shared/services/vehicle-api.service";
 export default {
   name: "TheLoginForm",
   data() {
@@ -72,7 +72,7 @@ export default {
 
     if (user.role === true || user.role === "True") {
       // Usuario arrendador
-      if (companyId) {
+      if (vehicleService.getCompanyMe()) {
         alert("Login exitoso. Redirigiendo a tu panel.");
         await router.push("/landlord-vehicles");
       } else {

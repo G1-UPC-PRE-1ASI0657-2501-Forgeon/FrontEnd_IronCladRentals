@@ -1,72 +1,76 @@
 <template>
   <div class="company-form-container">
     <div class="form-card">
-      <h2>Registrar Compañía</h2>
+      <div class="form-header">
+        <span class="form-icon">🏢</span>
+        <h2>Registrar tu Compañía</h2>
+        <p class="form-subtitle">
+          Para continuar como arrendador, necesitamos los datos de tu compañía.
+        </p>
+      </div>
       <form @submit.prevent="submitCompany">
         <div class="form-group">
           <label for="name">Nombre de la Compañía</label>
-          <input v-model="company.name" type="text" id="name" required />
+          <input v-model="company.name" type="text" id="name" placeholder="Arrendamientos López S.A." required />
         </div>
 
         <div class="form-group">
           <label for="ruc">RUC</label>
-          <input v-model="company.ruc" type="text" id="ruc" required />
+          <input v-model="company.ruc" type="text" id="ruc" placeholder="1234567890" required />
         </div>
 
-        <button type="submit">Registrar</button>
+        <button type="submit" :disabled="loading">
+          {{ loading ? "Registrando..." : "Registrar Compañía" }}
+        </button>
       </form>
     </div>
   </div>
 </template>
 
+
 <script>
 import { v4 as uuidv4 } from 'uuid';
-
+import userService from '@/shared/services/user-api.service';
+import vehicleService from '@/shared/services/vehicle-api.service';
 export default {
   name: 'The-Create-Company',
   data() {
-    return {
-      company: {
-        name: '',
-        ruc: ''
-      }
+  return {
+    company: {
+      name: '',
+      ruc: ''
+    },
+    loading: false
+  };
+},
+methods: {
+  async submitCompany() {
+    const userId = await userService.getInfoUser();
+    if (!userId) {
+      alert('No se ha encontrado un usuario logueado.');
+      return;
+    }
+
+    this.loading = true;
+
+    const newCompany = {
+      ...this.company,
     };
-  },
-  methods: {
-    async submitCompany() {
-      const userId = localStorage.getItem('userId');
 
-      if (!userId) {
-        alert('No se ha encontrado un usuario logueado.');
-        return;
-      }
+    try {
+     await vehicleService.createCompany(newCompany); 
 
-      const newCompany = {
-        ...this.company,
-        id: uuidv4()
-      };
-
-      try {
-        await fetch('http://localhost:3000/companies', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(newCompany)
-        });
-
-        const userCompanyMap = JSON.parse(localStorage.getItem('userCompanyMap') || '{}');
-        userCompanyMap[userId] = newCompany.id;
-        localStorage.setItem('userCompanyMap', JSON.stringify(userCompanyMap));
-        localStorage.setItem('companyId', newCompany.id);
-
-        alert('¡Compañía registrada con éxito!');
-        this.$router.push('/home');
-      } catch (error) {
-        console.error('Error al crear la compañía:', error);
-      }
+      alert('¡Compañía registrada con éxito!');
+      this.$router.push('/home');
+    } catch (error) {
+      console.error('Error al crear la compañía:', error);
+      alert('Hubo un error al registrar la compañía. Intenta de nuevo.');
+    } finally {
+      this.loading = false;
     }
   }
+}
+
 };
 </script>
 
@@ -104,6 +108,24 @@ h2 {
 .form-group {
   margin-bottom: 20px;
 }
+
+.form-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
 
 label {
   display: block;
