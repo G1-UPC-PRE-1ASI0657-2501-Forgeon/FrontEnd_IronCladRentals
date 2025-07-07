@@ -26,11 +26,18 @@
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
-        <Button
-            label="Confirmar Renta"
-            class="submit-btn"
-            @click="validateAndCreateRental"
-        />
+        <div class="button-group">
+          <Button
+              label="← Volver a Detalles"
+              class="back-btn"
+              @click="goBackToVehicleDetails"
+          />
+          <Button
+              label="Confirmar Renta"
+              class="submit-btn"
+              @click="validateAndCreateRental"
+          />
+        </div>
       </div>
     </div>
     <TheFooter />
@@ -45,7 +52,7 @@ import Button from "primevue/button";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-import TheHeaderSession from "@/components/elements/the-header-session.component.vue";
+import TheHeaderArrendatario from "@/components/elements/the-header-arrendatario.component.vue";
 import TheFooter from "@/components/elements/the-footer.component.vue";
 
 import rentalApiService from "@/shared/services/rental-api.service.js";
@@ -56,7 +63,7 @@ export default {
   components: {
     Calendar,
     Button,
-    TheHeaderSession,
+    TheHeaderArrendatario,
     TheFooter,
   },
   setup() {
@@ -197,6 +204,15 @@ export default {
       }
     };
 
+    const goBackToVehicleDetails = () => {
+      const vehicleId = route.params.id;
+      if (vehicleId) {
+        router.push(`/vehicle/${vehicleId}`);
+      } else {
+        router.push("/search-vehicles");
+      }
+    };
+
     onMounted(fetchVehicleAndLocations);
 
     return {
@@ -205,6 +221,7 @@ export default {
       selectedLocation,
       errorMessage,
       validateAndCreateRental,
+      goBackToVehicleDetails,
     };
   },
 };
@@ -300,6 +317,29 @@ label {
   font-weight: 500;
 }
 
+.button-group {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.back-btn {
+  background: linear-gradient(90deg, #757575 60%, #9e9e9e 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 1.13rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: 1;
+}
+
+.back-btn:hover {
+  background: linear-gradient(90deg, #424242 60%, #616161 100%);
+}
+
 .submit-btn {
   background: linear-gradient(90deg, #2e7d32 60%, #66bb6a 100%);
   color: white;
@@ -310,7 +350,7 @@ label {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  width: 100%;
+  flex: 1;
 }
 
 .submit-btn:hover {
@@ -366,6 +406,9 @@ footer {
   }
   .title {
     font-size: 1.8rem;
+  }
+  .button-group {
+    flex-direction: column;
   }
 }
 </style>
