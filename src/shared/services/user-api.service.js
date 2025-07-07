@@ -15,7 +15,7 @@ const userService = {
     // 🔹 OBTENER USUARIO POR ID
     async getById(id) {
         try {
-            const response = await api.get(`/users/${id}`);
+            const response = await api.get(`/AuthUser/${id}`);
             return response.data;
         } catch (error) {
             console.error("❌ Error obteniendo usuario por ID:", error);

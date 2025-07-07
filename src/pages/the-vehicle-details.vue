@@ -59,7 +59,7 @@
           </span>
         </div>
 
-        <button class="p-button-secondary" @click="$router.push('/search-vehicles')">
+        <button class="p-button-secondary" @click="$router.push('/arrendatario/search-vehicles')">
           Volver
         </button>
         <router-link :to="`/rent/${vehicle.vehicleId}`">

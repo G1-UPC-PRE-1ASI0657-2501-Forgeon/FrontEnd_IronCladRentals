@@ -16,6 +16,7 @@ import TheRentListPage from "@/pages/the-rent-list.page.vue";
 import TheActiveRentPage from "@/pages/the-active-rent-page.vue";
 import TheVehicleRegister from './pages/the-vehicle-register.vue';
 import Arrendatario from './pages/Arrendatario.vue';
+import TheReservationsPage from './pages/the-reservations-page.vue';
 
 const routes = [
     { path: '/', component: TheMain },
@@ -44,6 +45,8 @@ const routes = [
     { path: '/rent/:id', component: TheRentCreation },
     { path: '/rent-list', component: TheRentListPage },
     { path: '/active-rents', component: TheActiveRentPage },
+    { path: '/reservations', component: TheReservationsPage },
+
 ]
 
 const router = createRouter({

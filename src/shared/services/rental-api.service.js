@@ -92,7 +92,33 @@ const rentalService = {
             console.error("❌ Error obteniendo usuario:", error);
             throw error; // Lanza otros errores
         }  
+    },
+     async getRentalsPendingMe() {
+        try {
+            const response = await api.get("/rental/me/pending", {
+                withCredentials: true,
+                skipAuthInterceptor: true, // Bandera personalizada
+            });
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                return null; // Devuelve null si no está autenticado
+            }
+            console.error("❌ Error obteniendo usuario:", error);
+            throw error; // Lanza otros errores
+        }  
+    },
+      // 🔹 OBTENER RENTAS POR VEHÍCULO
+ async getByCompanyId(companyId) {
+    try {
+        const response = await api.get(`/rental/company/${companyId}/pending`);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error obteniendo rentas por compañía:", error);
+        throw error.response ? error.response.data : "Error de red o del servidor";
     }
+},
+
 };
 
 export default rentalService;
