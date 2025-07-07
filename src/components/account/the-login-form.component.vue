@@ -82,7 +82,7 @@ export default {
     } else {
       // Usuario arrendatario
       alert("Login exitoso. Redirigiendo a tu panel.");
-      await router.push("/search-vehicles");
+await router.push('/arrendatario/search-vehicles');
     }
 
   } catch (error) {

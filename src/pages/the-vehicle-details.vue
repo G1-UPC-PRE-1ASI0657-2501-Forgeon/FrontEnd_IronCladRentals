@@ -5,8 +5,17 @@
     </header>
 
     <div class="content">
-      <div class="details-card">
+      <div v-if="loading" class="loading-message">
+        Cargando vehículo...
+      </div>
+
+      <div v-else-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div v-else class="details-card">
         <img v-if="vehicle.imageUrl" :src="vehicle.imageUrl" alt="Imagen del vehículo" class="vehicle-img" />
+
         <h1 class="vehicle-title">
           <span class="brand">{{ vehicle.brandName }}</span>
           <span class="divider">-</span>
@@ -50,8 +59,10 @@
           </span>
         </div>
 
-        <Button label="Volver" class="p-button-secondary" @click="$router.push('/search-vehicles')" />
-        <router-link :to="`/rent/${vehicle.id}`">
+        <button class="p-button-secondary" @click="$router.push('/search-vehicles')">
+          Volver
+        </button>
+        <router-link :to="`/rent/${vehicle.vehicleId}`">
           <button class="p-button-secondary">Rentar este vehículo</button>
         </router-link>
       </div>
@@ -78,22 +89,50 @@ export default {
   },
   setup() {
     const route = useRoute();
-    const vehicle = ref({});
+    const vehicle = ref(null);
+    const loading = ref(true);
+    const errorMessage = ref("");
 
-    const fetchVehicleDetails = async () => {
-      try {
-        const vehicleId = Number(route.params.id);
-        const res = await vehicleService.getById(vehicleId);
-        vehicle.value = res.data;
-      } catch (error) {
-        console.error("❌ Error al obtener los detalles del vehículo:", error);
-      }
-    };
+   const API_BASE_URL = "http://localhost:5162";
+
+const fetchVehicleDetails = async () => {
+  try {
+    const idParam = route.params.id;
+    const vehicleId = parseInt(idParam, 10);
+    if (isNaN(vehicleId)) {
+      throw new Error(`ID inválido en la ruta: ${idParam}`);
+    }
+
+    console.log('Obteniendo detalles para ID:', vehicleId);
+    const res = await vehicleService.getById(vehicleId);
+    console.log('Respuesta del endpoint:', res);
+
+    let v = res; // o res.data si tu servicio lo devuelve así
+
+    // Corrige la URL de la imagen
+    if (v.imageUrl && v.imageUrl.startsWith("/")) {
+      v.imageUrl = API_BASE_URL + v.imageUrl;
+    }
+
+    vehicle.value = v;
+
+    if (!vehicle.value || !vehicle.value.vehicleId) {
+      throw new Error("No se encontró información del vehículo.");
+    }
+  } catch (error) {
+    console.error("❌ Error al obtener los detalles del vehículo:", error);
+    errorMessage.value = "Error cargando los datos del vehículo. Intenta más tarde.";
+  } finally {
+    loading.value = false;
+  }
+};
 
     onMounted(fetchVehicleDetails);
 
     return {
       vehicle,
+      loading,
+      errorMessage,
     };
   },
 };
@@ -147,6 +186,18 @@ footer {
   box-sizing: border-box;
 }
 
+.loading-message,
+.error-message {
+  margin-top: 40px;
+  font-size: 1.2rem;
+  color: #2e7d32;
+  text-align: center;
+}
+
+.error-message {
+  color: #c62828;
+}
+
 .details-card {
   background: #ffffff;
   border-radius: 20px;
@@ -165,7 +216,6 @@ footer {
   border-radius: 12px;
   margin-bottom: 20px;
   background: #f2f2f2;
-  border: none;
 }
 
 .vehicle-title {

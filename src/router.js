@@ -14,20 +14,30 @@ import thePaymentsMethods from "@/pages/the-payments-methods.vue";
 import TheRentCreation from "@/pages/the-rent-creation.page.vue";
 import TheRentListPage from "@/pages/the-rent-list.page.vue";
 import TheActiveRentPage from "@/pages/the-active-rent-page.vue";
-
+import TheVehicleRegister from './pages/the-vehicle-register.vue';
+import Arrendatario from './pages/Arrendatario.vue';
 
 const routes = [
     { path: '/', component: TheMain },
     { path: '/login', component: TheLogin },
     { path: '/register', component: TheRegister },
     { path: '/company-register', component: TheCompanyRegister },
+    { path: '/vehicles/create', component: TheVehicleRegister },
     { path: '/landlord-vehicles', component: theLandlordVehicles },
     { path: '/landlord/vehicles/pricing/:vehicleId?', component: thePricingPage },
     { path: '/edit', component: thePricingPage },
     { path: '/home', component: theHomePage },
     { path: '/users', component: TheLogin },
-    { path: '/search-vehicles', component: theSearchVehicles},
-    { path: '/vehicle/:id', component: theVehicleDetails },
+{
+  path: '/arrendatario',
+  component: Arrendatario,
+  children: [
+    { path: 'search-vehicles', component: theSearchVehicles },
+    { path: 'rent-list', component: TheRentListPage },
+    { path: 'payment-methods', component: thePaymentsMethods },
+    { path: 'user-config', component: theUserConfig },
+  ]
+},    { path: '/vehicle/:id', component: theVehicleDetails },
     { path: '/user-config', component: theUserConfig },
     { path: '/:pathMatch(.*)*', component: thePageNotFoundPage },
     { path: '/payment-methods', component: thePaymentsMethods },

@@ -2,7 +2,7 @@ import axios from "axios";
 import userService from "@/shared/services/user-api.service.js";
 
 const api = axios.create({
-    baseURL: "http://localhost:5162/api/v1",
+    baseURL: "http://localhost:5066/api/v1",
         withCredentials: true, // ✅ para que mande/reciba cookies
     headers: {
         "Accept": "application/json",

@@ -8,11 +8,11 @@
           <div class="form-left">
             <div class="form-group">
               <label>Fecha de inicio</label>
-              <Calendar v-model="rental.start_date" dateFormat="yy-mm-dd" showIcon class="calendar-input" />
+              <Calendar v-model="rental.startDate" dateFormat="yy-mm-dd" showIcon class="calendar-input" />
             </div>
             <div class="form-group">
               <label>Fecha de término</label>
-              <Calendar v-model="rental.end_date" dateFormat="yy-mm-dd" showIcon class="calendar-input" />
+              <Calendar v-model="rental.endDate" dateFormat="yy-mm-dd" showIcon class="calendar-input" />
             </div>
           </div>
           <div class="form-right">
@@ -49,7 +49,8 @@ import TheHeaderSession from "@/components/elements/the-header-session.component
 import TheFooter from "@/components/elements/the-footer.component.vue";
 
 import rentalApiService from "@/shared/services/rental-api.service.js";
-import locationApiService from "@/shared/services/location-api.service.js";
+import vehicleService from "@/shared/services/vehicle-api.service.js";
+import userService from "@/shared/services/user-api.service.js";
 
 export default {
   components: {
@@ -63,91 +64,140 @@ export default {
     const router = useRouter();
 
     const rental = ref({
-      vehicle_id: null,
-      user_id: null,
-      location_id: null,
-      start_date: null,
-      end_date: null,
-      rental_status: "active",
+      vehicleId: null,
+      userId: null,
+      locationId: null,
+      startDate: null,
+      endDate: null,
+      rentalStatus: "Pending",  // Default
     });
 
     const locations = ref([]);
     const selectedLocation = ref(null);
     const errorMessage = ref("");
+    let mapInstance = null;
+    let markersLayer = null;
 
-    const fetchLocations = async () => {
+    const fetchVehicleAndLocations = async () => {
       try {
-        const res = await locationApiService.getAll();
-        locations.value = (res.data || res)
-            .filter((loc) => loc.location_status === "active")
-            .map((loc) => ({
-              id: loc.id,
-              label: `${loc.city} - ${loc.address} (${loc.latitude}, ${loc.longitude})`,
-              latitude: loc.latitude,
-              longitude: loc.longitude,
-            }));
-
-        if (locations.value.length) {
-          const first = locations.value[0];
-          const map = L.map("map").setView([first.latitude, first.longitude], 13);
-
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: "© OpenStreetMap contributors"
-          }).addTo(map);
-
-          locations.value.forEach(loc => {
-            const marker = L.marker([loc.latitude, loc.longitude]).addTo(map);
-            marker.bindPopup(loc.label);
-            marker.on("click", () => {
-              selectedLocation.value = loc;
-              rental.value.location_id = loc.id;
-            });
-          });
+        const vehicleId = route.params.id;
+        if (!vehicleId) {
+          errorMessage.value = "No se encontró el ID del vehículo en la URL.";
+          return;
         }
+
+        const vehicle = await vehicleService.getById(vehicleId);
+        rental.value.vehicleId = vehicleId;
+
+        if (!vehicle || !vehicle.companyId) {
+          errorMessage.value = "No se pudo determinar la compañía del vehículo.";
+          return;
+        }
+
+        const res = await vehicleService.getCompanyLocations(vehicle.companyId);
+        locations.value = (res.data || res)
+          .filter(loc => loc.locationStatus?.toLowerCase() === "activo")
+          .map(loc => ({
+            id: loc.id,
+            label: `${loc.city} - ${loc.address}`,
+            latitude: loc.latitude,
+            longitude: loc.longitude,
+          }));
+
+        if (!locations.value.length) {
+          errorMessage.value = "La compañía no tiene ubicaciones activas.";
+          return;
+        }
+
+        initMapWithLocations();
+
       } catch (error) {
-        console.error("Error al obtener ubicaciones:", error);
+        console.error("Error cargando datos:", error);
+        errorMessage.value = "Error al cargar datos. Intenta más tarde.";
       }
     };
 
+    const initMapWithLocations = () => {
+      if (!locations.value.length) return;
+
+      selectedLocation.value = locations.value[0];
+      rental.value.locationId = locations.value[0].id;
+
+      const first = locations.value[0];
+
+      if (!mapInstance) {
+        mapInstance = L.map("map").setView([first.latitude, first.longitude], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors"
+        }).addTo(mapInstance);
+      }
+
+      if (markersLayer) {
+        markersLayer.clearLayers();
+      } else {
+        markersLayer = L.layerGroup().addTo(mapInstance);
+      }
+
+      locations.value.forEach(loc => {
+        const marker = L.marker([loc.latitude, loc.longitude])
+          .bindPopup(loc.label)
+          .on("click", () => {
+            selectedLocation.value = loc;
+            rental.value.locationId = loc.id;
+            marker.openPopup();
+          });
+        markersLayer.addLayer(marker);
+      });
+    };
+
     const validateAndCreateRental = async () => {
-      const vehicleId = route.params.id;
-      if (!vehicleId) {
-        errorMessage.value = "No se encontró el ID del vehículo en la URL.";
-        return;
-      }
-      rental.value.vehicle_id = vehicleId;
-
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        errorMessage.value = "No se encontró el ID del usuario en el localStorage.";
-        return;
-      }
-      rental.value.user_id = userId;
-
-      if (!rental.value.start_date || !rental.value.end_date) {
-        errorMessage.value = "Por favor, selecciona ambas fechas.";
-        return;
-      }
-      if (new Date(rental.value.start_date) >= new Date(rental.value.end_date)) {
-        errorMessage.value = "La fecha de inicio debe ser anterior a la fecha de término.";
-        return;
-      }
-      if (!rental.value.location_id) {
-        errorMessage.value = "Por favor, selecciona una ubicación en el mapa.";
-        return;
-      }
+      errorMessage.value = "";
 
       try {
-        await rentalApiService.create(rental.value);
+        const userInfo = await userService.getInfoUser();
+        if (!userInfo || !userInfo.id) {
+          errorMessage.value = "No se pudo obtener la información del usuario. Por favor inicia sesión.";
+          return;
+        }
+        rental.value.userId = userInfo.id;
+
+        if (!rental.value.startDate || !rental.value.endDate) {
+          errorMessage.value = "Por favor, selecciona ambas fechas.";
+          return;
+        }
+        if (new Date(rental.value.startDate) >= new Date(rental.value.endDate)) {
+          errorMessage.value = "La fecha de inicio debe ser anterior a la fecha de término.";
+          return;
+        }
+
+        if (selectedLocation.value && selectedLocation.value.id) {
+          rental.value.locationId = selectedLocation.value.id;
+        }
+
+        if (!rental.value.locationId) {
+          errorMessage.value = "Por favor, selecciona una ubicación en el mapa.";
+          return;
+        }
+
+        // Enviar con las propiedades correctas
+        await rentalApiService.create({
+          vehicleId: rental.value.vehicleId,
+          userId: rental.value.userId,
+          locationId: rental.value.locationId,
+          startDate: rental.value.startDate,
+          endDate: rental.value.endDate
+        });
+
         alert("¡Renta creada con éxito!");
         router.push("/search-vehicles");
+
       } catch (error) {
         console.error("Error al crear la renta:", error);
         errorMessage.value = "Error al crear la renta. Intenta nuevamente.";
       }
     };
 
-    onMounted(fetchLocations);
+    onMounted(fetchVehicleAndLocations);
 
     return {
       rental,
@@ -161,6 +211,7 @@ export default {
 </script>
 
 <style scoped>
+/* Tus estilos originales se mantienen igual */
 .rent-creation {
   background: linear-gradient(135deg, #e9f5f3, #b2d8b2);
   min-height: 100vh;
@@ -203,7 +254,6 @@ export default {
   gap: 20px;
 }
 
-/* Nuevo layout: columnas lado a lado */
 .form-columns {
   display: flex;
   gap: 30px;
@@ -266,6 +316,7 @@ label {
 .submit-btn:hover {
   background: linear-gradient(90deg, #1b5e20 60%, #388e3c 100%);
 }
+
 header {
   position: fixed;
   top: 0;
@@ -288,6 +339,7 @@ footer {
   right: 0;
   z-index: 100;
 }
+
 .error-message {
   color: #d32f2f;
   font-weight: bold;
@@ -298,7 +350,6 @@ footer {
   padding: 7px;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .form-columns {
     flex-direction: column;

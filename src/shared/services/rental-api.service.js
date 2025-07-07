@@ -1,4 +1,4 @@
-import api from "@/api/api.js";
+import api from "@/api/apiRentalService.js";
 
 const rentalService = {
     // 🔹 OBTENER TODAS LAS RENTAS
@@ -26,7 +26,7 @@ const rentalService = {
     // 🔹 CREAR UNA RENTA
     async create(rentalData) {
         try {
-            const response = await api.post("/rentals", rentalData);
+            const response = await api.post("/rental", rentalData);
             return response.data;
         } catch (error) {
             console.error("❌ Error creando la renta:", error);
@@ -76,6 +76,22 @@ const rentalService = {
             console.error("❌ Error obteniendo rentas por vehículo:", error);
             throw error.response ? error.response.data : "Error de red o del servidor";
         }
+    },
+
+     async getRentalsActiveMe() {
+        try {
+            const response = await api.get("/rental/me/active", {
+                withCredentials: true,
+                skipAuthInterceptor: true, // Bandera personalizada
+            });
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                return null; // Devuelve null si no está autenticado
+            }
+            console.error("❌ Error obteniendo usuario:", error);
+            throw error; // Lanza otros errores
+        }  
     }
 };
 

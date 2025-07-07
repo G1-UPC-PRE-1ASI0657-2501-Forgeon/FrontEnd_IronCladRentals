@@ -1,216 +1,142 @@
 <template>
-  <div class="landlord-rentals">
-    <header>
-      <TheHeaderSession />
-    </header>
-    <div class="content">
-      <h1 class="page-title">Rentas de Mis Vehículos</h1>
+  <div class="active-rentals">
+    <TheHeaderSession />
 
-      <transition-group name="fade" tag="div" class="cards-container">
-        <div v-for="(rental, index) in filteredRentals" :key="rental.id" class="card1">
-          <div class="p-4 border-round surface-card shadow-2 card-content">
-            <div class="flex flex-column align-items-center">
-              <img :src="getVehicleImage(rental.vehicle_id)" alt="Imagen del vehículo" class="vehicle-image mb-3" />
-              <Tag
-                  :value="rental.rental_status"
-                  :severity="getStatusSeverity(rental.rental_status)"
-                  class="mb-3"
-              />
-              <h2 class="vehicle-title">{{ getVehicleInfo(rental.vehicle_id) }}</h2>
-              <p class="vehicle-info">📅 Inicio: {{ formatDate(rental.start_date) }}</p>
-              <p class="vehicle-info">📅 Fin: {{ formatDate(rental.end_date) }}</p>
-              <p class="vehicle-info">👤 Arrendatario: {{ getUserName(rental.user_id) }}</p>
-              <p class="vehicle-info">📍 Ubicación: {{ getLocationName(rental.location_id) }}</p>
-              <Button
-                  v-if="rental.rental_status !== 'finished'"
-                  :label="'Cancelar Renta'"
-                  class="p-button-danger mt-3"
-                  @click="cancelRental(rental.id)"
-              />
-            </div>
+    <main class="content">
+      <h1 class="page-title">Mis Rentas Activas</h1>
+
+      <div v-if="loading" class="loading">Cargando rentas...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-else-if="enrichedRentals.length === 0" class="empty-message">
+        No tienes rentas activas.
+      </div>
+
+      <div v-else class="cards-container">
+        <div v-for="rental in enrichedRentals" :key="rental.id" class="card">
+          <img :src="rental.vehicleImage" alt="Imagen del vehículo" class="vehicle-img" />
+          <div class="card-content">
+            <h2 class="vehicle-title">{{ rental.vehicleName }}</h2>
+            <p class="rental-status">Estado: {{ rental.rentalStatus }}</p>
+            <p class="rental-date">📅 Inicio: {{ formatDate(rental.startDate) }}</p>
+            <p class="rental-date">📅 Fin: {{ formatDate(rental.endDate) }}</p>
+            <p class="rental-location">📍 Recoger vehículo en: {{ rental.locationName }}</p>
           </div>
         </div>
-      </transition-group>
-    </div>
-    <footer>
-      <TheFooter />
-    </footer>
+      </div>
+    </main>
+
+    <TheFooter />
   </div>
 </template>
 
-<script>
-import { ref, onMounted, computed } from "vue";
-import Tag from "primevue/tag";
-import Button from "primevue/button";
+
+
+<script setup>
+import { ref, onMounted } from "vue";
+import rentalApiService from "@/shared/services/rental-api.service";
+import vehicleService from "@/shared/services/vehicle-api.service";
 import TheHeaderSession from "@/components/elements/the-header-session.component.vue";
 import TheFooter from "@/components/elements/the-footer.component.vue";
-import vehicleApiService from "@/shared/services/vehicle-api.service.js";
-import rentalApiService from "@/shared/services/rental-api.service.js";
-import userService from "@/shared/services/user-api.service.js";
-import locationApiService from "@/shared/services/location-api.service.js";
-import { BrandApiService } from "@/shared/services/brand-api.service.js";
-import { ModelApiService } from "@/shared/services/model-api.service.js";
 
+const loading = ref(true);
+const error = ref("");
+const enrichedRentals = ref([]);
 
-export default {
-  name: "LandlordRentals",
-  components: {
-    Tag,
-    Button,
-    TheHeaderSession,
-    TheFooter,
-  },
-  setup() {
-    const rentals = ref([]);
-    const vehicles = ref([]);
-    const users = ref([]);
-    const locations = ref([]);
-    const brands = ref([]);
-    const models = ref([]);
-
-    const brandApiService = new BrandApiService();
-    const modelApiService = new ModelApiService();
-
-    const fetchRentals = async () => {
-      try {
-        const companyId = localStorage.getItem("companyId");
-        if (!companyId) {
-          console.error("No se encontró el ID de la compañía en localStorage.");
-          return;
-        }
-
-        const [vehicleRes, rentalRes, userRes, locationRes, brandRes, modelRes] = await Promise.all([
-          vehicleApiService.getAll(),
-          rentalApiService.getAll(),
-          userService.getAll(),
-          locationApiService.getAll(),
-          brandApiService.getAll(),
-          modelApiService.getAll(),
-        ]);
-
-        vehicles.value = vehicleRes.data.filter((v) => v.companyId === companyId);
-        rentals.value = rentalRes.filter((r) =>
-            vehicles.value.some((v) => v.id === r.vehicle_id)
-        );
-        users.value = userRes;
-        locations.value = locationRes.data;
-        brands.value = brandRes.data;
-        models.value = modelRes.data;
-      } catch (error) {
-        console.error("Error al obtener rentas, vehículos, usuarios o ubicaciones:", error);
-      }
-    };
-
-    const cancelRental = async (rentalId) => {
-      try {
-        const rental = rentals.value.find((r) => r.id === rentalId);
-        if (rental) {
-          await rentalApiService.update(rentalId, { ...rental, rental_status: "finished" });
-          rental.rental_status = "finished";
-        }
-      } catch (error) {
-        console.error("Error al cancelar la renta:", error);
-      }
-    };
-
-    const filteredRentals = computed(() =>
-        rentals.value.filter((rental) => rental.rental_status !== "finished")
-    );
-
-    const getBrandName = (brandId) => {
-      const brand = brands.value.find((b) => b.id === brandId);
-      return brand ? brand.brand_name : "Desconocido";
-    };
-
-    const getModelName = (modelId) => {
-      const model = models.value.find((m) => m.id === modelId);
-      return model ? model.car_model : "Desconocido";
-    };
-
-    const getVehicleInfo = (vehicleId) => {
-      const vehicle = vehicles.value.find((v) => v.id === vehicleId);
-      return vehicle
-          ? `${getBrandName(vehicle.brand_id)} - ${getModelName(vehicle.model_id)}`
-          : "Desconocido";
-    };
-
-    const getVehicleImage = (vehicleId) => {
-      const vehicle = vehicles.value.find((v) => v.id === vehicleId);
-      return vehicle ? vehicle.url : "https://via.placeholder.com/150";
-    };
-
-    const getUserName = (userId) => {
-      const user = users.value.find((u) => u.id === userId);
-      return user ? user.names : "Desconocido";
-    };
-
-    const getLocationName = (locationId) => {
-      const location = locations.value.find((loc) => loc.id === locationId);
-      return location ? `${location.city} - ${location.address}` : "Desconocido";
-    };
-
-    const formatDate = (date) => {
-      return new Intl.DateTimeFormat("es-PE", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }).format(new Date(date));
-    };
-
-    const getStatusSeverity = (status) => {
-      switch (status) {
-        case "active":
-          return "success";
-        case "pendiente":
-          return "warning";
-        default:
-          return "danger";
-      }
-    };
-
-    onMounted(fetchRentals);
-
-    return {
-      rentals,
-      filteredRentals,
-      cancelRental,
-      getVehicleInfo,
-      getVehicleImage,
-      getUserName,
-      getLocationName,
-      formatDate,
-      getStatusSeverity,
-    };
-  },
+const formatDate = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("es-PE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
 };
+
+const fetchMyActiveRentals = async () => {
+  try {
+    loading.value = true;
+    error.value = "";
+    enrichedRentals.value = [];
+
+    // Obtener rentas activas de mi cuenta
+    const rentals = await rentalApiService.getRentalsActiveMe();
+
+    // Resolver datos de cada renta
+    const resolved = await Promise.all(rentals.map(async (rental) => {
+      let vehicleName = "Desconocido";
+      let vehicleImage = "https://via.placeholder.com/300x200?text=Sin+imagen";
+      let locationName = "Desconocida";
+
+      try {
+        const vehicle = await vehicleService.getById(rental.vehicleId);
+        vehicleName = `${vehicle.brandName} - ${vehicle.modelName}`;
+        vehicleImage = vehicle.imageUrl;
+      } catch (e) {
+        console.error("❌ Error cargando vehículo:", e);
+      }
+
+      try {
+        const location = await vehicleService.getLocationById(rental.locationId);
+        locationName = `${location.city} - ${location.address}`;
+      } catch (e) {
+        console.error("❌ Error cargando ubicación:", e);
+      }
+
+      return {
+        id: rental.id,
+        rentalStatus: rental.rentalStatus,
+        startDate: rental.startDate,
+        endDate: rental.endDate,
+        vehicleName,
+        vehicleImage,
+        locationName,
+      };
+    }));
+
+    enrichedRentals.value = resolved;
+  } catch (err) {
+    console.error(err);
+    error.value = "Error cargando tus rentas activas.";
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchMyActiveRentals);
 </script>
 
-<style scoped>
-.vehicle-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
-.landlord-rentals {
-  background: linear-gradient(to bottom right, #f0f4f8, #d9e8e2);
-  min-height: 100vh;
-  padding-top: 120px;
+<style scoped>
+.content {
   position: fixed;
-  top: 0;
+  top: 60px;
+  bottom: 60px;
   left: 0;
   right: 0;
-  z-index: 100;
+  padding: 20px;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #e6f0e6 0%, #c9dbc9 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .page-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 2.3rem;
+  color: #3a5d3a;
+  margin-bottom: 24px;
   text-align: center;
-  font-size: 2.5rem;
-  color: #08351a;
-  font-weight: bold;
-  margin-bottom: 30px;
+}
+
+.loading,
+.error,
+.no-results {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  color: #4a764a;
 }
 
 .cards-container {
@@ -218,50 +144,62 @@ export default {
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
-  padding: 0 20px;
+  width: 100%;
+  max-width: 1100px;
 }
 
-.card1 {
-  width: 320px;
+.card {
+  flex: 1 1 220px;
+  max-width: 260px;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 12px rgba(127, 168, 127, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  user-select: none;
+  overflow: hidden;
 }
 
-.card1:hover {
-  transform: scale(1.05);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(127, 168, 127, 0.25);
 }
 
 .card-content {
-  padding: 20px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.vehicle-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1b4332;
-  margin-bottom: 12px;
+.card-content h2 {
+  font-size: 1.4rem;
+  color: #356635;
+  margin-bottom: 8px;
 }
 
-.vehicle-info {
+.card-content p {
   font-size: 1rem;
-  color: #407148;
-  margin: 6px 0;
+  color: #4f794f;
+  margin: 4px 0;
+  font-weight: 500;
 }
 
 footer {
-  background-color: #1a1a1a;
-  padding: 10px 0;
-  font-size: 15px;
-  line-height: 24px;
-  color: #737373;
+  background-color: #496b49;
+  padding: 12px 0;
+  font-size: 13px;
+  color: #e0f2e0;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  box-shadow: 0 -3px 8px rgba(53, 102, 53, 0.25);
 }
 
 header {
@@ -269,17 +207,5 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: all 0.4s ease;
-}
-
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
 }
 </style>
