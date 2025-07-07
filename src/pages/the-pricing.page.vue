@@ -1,6 +1,5 @@
 <template>
   <div class="pricing-container">
-    <TheHeaderSession />
 
     <h1 class="title">Asignar Precio a Vehículo</h1>
 

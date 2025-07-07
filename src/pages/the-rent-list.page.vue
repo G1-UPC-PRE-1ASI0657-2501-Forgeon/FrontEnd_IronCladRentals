@@ -1,6 +1,5 @@
 <template>
   <div class="active-rentals">
-    <TheHeaderSession />
 
     <main class="content">
       <h1 class="page-title">Mis Rentas Activas</h1>

@@ -5,7 +5,6 @@
         <div class="logo-container">
           <img src="../../assets/images/logo.png" alt="Logo" class="logo">
           <h1 class="company-name">IronClad Rentals</h1>
-          <language-switcher aria-label="Language switcher"></language-switcher>
         </div>
       </div>
       <div class="right-section">
@@ -15,7 +14,6 @@
         <router-link v-if="isArrendador" to="/rent-list" class="link" aria-label="Rentas">Ver Rentas</router-link>
         <router-link v-if="isArrendatario" to="/search-vehicles" class="link" aria-label="Search">Busqueda</router-link>
         <router-link v-if="isArrendatario" to="/active-rents" class="link" aria-label="Rent">Renta</router-link>
-        <router-link  to="/user-config" class="link" aria-label="User Config">Usuario</router-link>
         <button @click="logout" class="button-logout" aria-label="Log out">Log out</button>
       </div>
     </div>
@@ -36,6 +34,9 @@ export default {
     isArrendatario() {
       // rol: false (string) en localStorage
       return localStorage.getItem('rol') === 'false';
+    },
+    userName() {
+      return localStorage.getItem('userName') || 'Usuario';
     }
   },
   methods: {
@@ -51,6 +52,11 @@ export default {
 
 <style scoped>
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   background-color: #ffffff;
   padding: 10px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -60,6 +66,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .logo-container {
@@ -107,6 +116,13 @@ export default {
 
 .button-logout:hover {
   background-color: #bd2130;
+}
+
+.welcome-message {
+  color: #333;
+  font-size: 16px;
+  margin-left: 20px;
+  font-weight: 500;
 }
 
 </style>

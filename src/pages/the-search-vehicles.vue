@@ -1,8 +1,5 @@
 <template>
   <div class="search-vehicles">
-    <header>
-      <TheHeaderSession />
-    </header>
     <main class="content">
       <h1 class="page-title">Buscar Vehículos</h1>
       <div class="filters">
