@@ -196,7 +196,7 @@ export default {
         });
 
         alert("¡Renta creada con éxito!");
-        router.push("/search-vehicles");
+        router.push("/arrendatario/search-vehicles");
 
       } catch (error) {
         console.error("Error al crear la renta:", error);
