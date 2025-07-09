@@ -136,16 +136,49 @@ const rentalService = {
             throw error.response ? error.response.data : "Error de red o del servidor";
         }
     },
-      // 🔹 OBTENER RENTAS POR VEHÍCULO
+      // 🔹 OBTENER RENTAS PENDIENTES (PAGADAS PERO NO CONFIRMADAS) POR COMPAÑÍA
  async getByCompanyId(companyId) {
     try {
         const response = await api.get(`/rental/company/${companyId}/pending/paid`);
         return response.data;
     } catch (error) {
-        console.error("❌ Error obteniendo rentas por compañía:", error);
+        console.error("❌ Error obteniendo rentas pendientes por compañía:", error);
         throw error.response ? error.response.data : "Error de red o del servidor";
     }
 },
+
+    // 🔹 OBTENER RENTAS ACTIVAS (CONFIRMADAS) POR COMPAÑÍA
+    async getActiveByCompanyId(companyId) {
+        try {
+            const response = await api.get(`/rental/company/${companyId}/confirmed`);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error obteniendo rentas activas por compañía:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 CONFIRMAR RESERVA
+    async confirmRental(rentalId) {
+        try {
+            const response = await api.post(`/rental/${rentalId}/confirm`, {});
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error confirmando reserva:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
+    // 🔹 COMPLETAR RESERVA
+    async completeRental(rentalId) {
+        try {
+            const response = await api.post(`/rental/${rentalId}/complete`, {});
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error completando reserva:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
 
     // 🔹 MARCAR RENTA COMO PAGADA
     async markRentalAsPaid(rentalId) {
