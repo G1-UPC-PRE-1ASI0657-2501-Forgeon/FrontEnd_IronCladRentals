@@ -30,7 +30,7 @@
 
         <!-- Sección de Rentas Pendientes -->
         <div v-if="enrichedPendingRentals.length > 0" class="section">
-          <h2 class="section-title">⏳ Rentas Pendientes</h2>
+          <h2 class="section-title">⏳ Rentas Pendientes (Sin Pagar)</h2>
           <div class="cards-container">
             <div v-for="rental in enrichedPendingRentals" :key="rental.id" class="card pending-card">
               <img :src="rental.vehicleImage" alt="Imagen del vehículo" class="vehicle-img" />
@@ -40,6 +40,17 @@
                 <p class="rental-date">📅 Inicio: {{ formatDate(rental.startDate) }}</p>
                 <p class="rental-date">📅 Fin: {{ formatDate(rental.endDate) }}</p>
                 <p class="rental-location">📍 Recoger vehículo en: {{ rental.locationName }}</p>
+                <div class="price-info">
+                  <p class="price-detail">💰 {{ formatPrice(rental.pricePerDay) }} x {{ rental.totalDays }} día(s)</p>
+                  <p class="total-price">Total: {{ formatPrice(rental.totalPrice) }}</p>
+                </div>
+                <button 
+                  @click="processPayment(rental)"
+                  :disabled="paymentProcessing.has(rental.id)"
+                  class="pay-button"
+                >
+                  {{ paymentProcessing.has(rental.id) ? 'Procesando...' : `PAGAR ${formatPrice(rental.totalPrice)}` }}
+                </button>
               </div>
             </div>
           </div>
@@ -64,6 +75,7 @@ const loading = ref(true);
 const error = ref("");
 const enrichedActiveRentals = ref([]);
 const enrichedPendingRentals = ref([]);
+const paymentProcessing = ref(new Set()); // Para trackear pagos en proceso
 
 const formatDate = (date) => {
   if (!date) return "";
@@ -72,6 +84,18 @@ const formatDate = (date) => {
     month: "long",
     day: "numeric"
   });
+};
+
+const calculateDays = (startDate, endDate) => {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end - start);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+const formatPrice = (price) => {
+  return price ? `S/ ${price.toFixed(2)}` : "S/ 0.00";
 };
 
 const fetchMyRentals = async () => {
@@ -84,7 +108,7 @@ const fetchMyRentals = async () => {
     // Obtener rentas activas y pendientes en paralelo
     const [activeRentals, pendingRentals] = await Promise.all([
       rentalApiService.getRentalsActiveMe(),
-      rentalApiService.getRentalsPendingMe()
+      rentalApiService.getRentalsPendingUnpaidMe() // Cambiado para obtener solo las no pagadas
     ]);
 
     // Resolver datos de rentas activas
@@ -92,9 +116,24 @@ const fetchMyRentals = async () => {
       return await enrichRentalData(rental);
     }));
 
-    // Resolver datos de rentas pendientes
+    // Resolver datos de rentas pendientes (con información de precio)
     const resolvedPendingRentals = await Promise.all(pendingRentals.map(async (rental) => {
-      return await enrichRentalData(rental);
+      const enrichedRental = await enrichRentalData(rental);
+      // Obtener información adicional del vehículo para cálculo de precio
+      try {
+        const rentalVehicleInfo = await rentalApiService.getRentalVehicleInformation(rental.id);
+        const days = calculateDays(rental.startDate, rental.endDate);
+        const totalPrice = rentalVehicleInfo.pricing * days; // Cambiado de .price a .pricing
+        enrichedRental.pricePerDay = rentalVehicleInfo.pricing; // Cambiado de .price a .pricing
+        enrichedRental.totalDays = days;
+        enrichedRental.totalPrice = totalPrice;
+      } catch (e) {
+        console.error("❌ Error obteniendo información de precio:", e);
+        enrichedRental.pricePerDay = 0;
+        enrichedRental.totalDays = 0;
+        enrichedRental.totalPrice = 0;
+      }
+      return enrichedRental;
     }));
 
     enrichedActiveRentals.value = resolvedActiveRentals;
@@ -136,6 +175,35 @@ const enrichRentalData = async (rental) => {
     vehicleImage,
     locationName,
   };
+};
+
+const processPayment = async (rental) => {
+  if (paymentProcessing.value.has(rental.id)) return;
+  
+  try {
+    paymentProcessing.value.add(rental.id);
+    
+    // Simular proceso de pago (aquí implementarías la integración real con el gateway de pago)
+    const confirmPayment = confirm(
+      `¿Confirmas el pago de ${formatPrice(rental.totalPrice)} por ${rental.totalDays} día(s) de renta del vehículo ${rental.vehicleName}?`
+    );
+    
+    if (confirmPayment) {
+      // Aquí harías la llamada real al endpoint de pago
+      // Por ahora simularemos un pago exitoso
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simular delay del pago
+      
+      alert("¡Pago procesado exitosamente!");
+      
+      // Recargar las rentas para actualizar la lista
+      await fetchMyRentals();
+    }
+  } catch (error) {
+    console.error("Error procesando el pago:", error);
+    alert("Error al procesar el pago. Intenta nuevamente.");
+  } finally {
+    paymentProcessing.value.delete(rental.id);
+  }
 };
 
 onMounted(fetchMyRentals);
@@ -280,6 +348,54 @@ onMounted(fetchMyRentals);
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 12px;
+}
+
+.price-info {
+  margin: 12px 0;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #ff9800;
+}
+
+.price-detail {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 2px 0;
+}
+
+.total-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2e7d32;
+  margin: 4px 0 0 0;
+}
+
+.pay-button {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.pay-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f57c00, #ef6c00);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.pay-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 footer {

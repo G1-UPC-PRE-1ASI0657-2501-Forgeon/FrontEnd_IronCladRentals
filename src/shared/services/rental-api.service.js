@@ -108,6 +108,34 @@ const rentalService = {
             throw error; // Lanza otros errores
         }  
     },
+
+    // 🔹 OBTENER RENTAS PENDIENTES Y NO PAGADAS
+    async getRentalsPendingUnpaidMe() {
+        try {
+            const response = await api.get("/rental/me/pending/unpaid", {
+                withCredentials: true,
+                skipAuthInterceptor: true,
+            });
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                return null;
+            }
+            console.error("❌ Error obteniendo rentas pendientes no pagadas:", error);
+            throw error;
+        }
+    },
+
+    // 🔹 OBTENER INFORMACIÓN DE VEHÍCULO PARA RENTA (con precio)
+    async getRentalVehicleInformation(rentalId) {
+        try {
+            const response = await api.get(`/rental/rentalinformationvehicle/${rentalId}`);
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error obteniendo información del vehículo para renta:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
       // 🔹 OBTENER RENTAS POR VEHÍCULO
  async getByCompanyId(companyId) {
     try {
