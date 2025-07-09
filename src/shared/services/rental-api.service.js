@@ -139,7 +139,7 @@ const rentalService = {
       // 🔹 OBTENER RENTAS POR VEHÍCULO
  async getByCompanyId(companyId) {
     try {
-        const response = await api.get(`/rental/company/${companyId}/pending`);
+        const response = await api.get(`/rental/company/${companyId}/pending/paid`);
         return response.data;
     } catch (error) {
         console.error("❌ Error obteniendo rentas por compañía:", error);
