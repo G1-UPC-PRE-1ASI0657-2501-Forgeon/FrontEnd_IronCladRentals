@@ -147,6 +147,17 @@ const rentalService = {
     }
 },
 
+    // 🔹 MARCAR RENTA COMO PAGADA
+    async markRentalAsPaid(rentalId) {
+        try {
+            const response = await api.post(`/rental/${rentalId}/paid`, {});
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error marcando renta como pagada:", error);
+            throw error.response ? error.response.data : "Error de red o del servidor";
+        }
+    },
+
 };
 
 export default rentalService;

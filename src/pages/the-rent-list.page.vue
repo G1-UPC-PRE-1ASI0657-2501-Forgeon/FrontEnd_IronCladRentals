@@ -58,6 +58,92 @@
       </div>
     </main>
 
+    <!-- Modal de Pago -->
+    <div v-if="showPaymentModal" class="payment-modal-overlay" @click="closePaymentModal">
+      <div class="payment-modal" @click.stop>
+        <div class="modal-header">
+          <h3>💳 Procesar Pago</h3>
+          <button @click="closePaymentModal" class="close-btn">✕</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="payment-summary">
+            <h4>Resumen de Pago</h4>
+            <p><strong>Vehículo:</strong> {{ selectedRental?.vehicleName }}</p>
+            <p><strong>Período:</strong> {{ formatDate(selectedRental?.startDate) }} - {{ formatDate(selectedRental?.endDate) }}</p>
+            <p><strong>Días:</strong> {{ selectedRental?.totalDays }}</p>
+            <p><strong>Precio por día:</strong> {{ formatPrice(selectedRental?.pricePerDay) }}</p>
+            <p class="total-amount"><strong>Total a pagar: {{ formatPrice(selectedRental?.totalPrice) }}</strong></p>
+          </div>
+
+          <form @submit.prevent="submitPayment" class="payment-form">
+            <div class="form-group">
+              <label for="cardNumber">Número de Tarjeta</label>
+              <input 
+                type="text" 
+                id="cardNumber"
+                v-model="paymentForm.cardNumber"
+                placeholder="1234 5678 9012 3456"
+                maxlength="19"
+                @input="formatCardNumber"
+                required
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="expiryDate">Fecha de Vencimiento</label>
+                <input 
+                  type="text" 
+                  id="expiryDate"
+                  v-model="paymentForm.expiryDate"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                  @input="formatExpiryDate"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="cvv">CVV</label>
+                <input 
+                  type="text" 
+                  id="cvv"
+                  v-model="paymentForm.cvv"
+                  placeholder="123"
+                  maxlength="4"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="cardName">Nombre en la Tarjeta</label>
+              <input 
+                type="text" 
+                id="cardName"
+                v-model="paymentForm.cardName"
+                placeholder="Juan Pérez"
+                required
+              />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" @click="closePaymentModal" class="cancel-btn">
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                :disabled="paymentProcessing.has(selectedRental?.id)"
+                class="confirm-pay-btn"
+              >
+                {{ paymentProcessing.has(selectedRental?.id) ? 'Procesando...' : `Pagar ${formatPrice(selectedRental?.totalPrice)}` }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <TheFooter />
   </div>
 </template>
@@ -76,6 +162,14 @@ const error = ref("");
 const enrichedActiveRentals = ref([]);
 const enrichedPendingRentals = ref([]);
 const paymentProcessing = ref(new Set()); // Para trackear pagos en proceso
+const showPaymentModal = ref(false);
+const selectedRental = ref(null);
+const paymentForm = ref({
+  cardNumber: '',
+  expiryDate: '',
+  cvv: '',
+  cardName: ''
+});
 
 const formatDate = (date) => {
   if (!date) return "";
@@ -180,29 +274,66 @@ const enrichRentalData = async (rental) => {
 const processPayment = async (rental) => {
   if (paymentProcessing.value.has(rental.id)) return;
   
+  selectedRental.value = rental;
+  showPaymentModal.value = true;
+  
+  // Resetear formulario
+  paymentForm.value = {
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardName: ''
+  };
+};
+
+const closePaymentModal = () => {
+  showPaymentModal.value = false;
+  selectedRental.value = null;
+  paymentForm.value = {
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardName: ''
+  };
+};
+
+const formatCardNumber = (event) => {
+  let value = event.target.value.replace(/\D/g, '');
+  value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+  paymentForm.value.cardNumber = value;
+};
+
+const formatExpiryDate = (event) => {
+  let value = event.target.value.replace(/\D/g, '');
+  if (value.length >= 2) {
+    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+  }
+  paymentForm.value.expiryDate = value;
+};
+
+const submitPayment = async () => {
+  if (!selectedRental.value) return;
+  
   try {
-    paymentProcessing.value.add(rental.id);
+    paymentProcessing.value.add(selectedRental.value.id);
     
-    // Simular proceso de pago (aquí implementarías la integración real con el gateway de pago)
-    const confirmPayment = confirm(
-      `¿Confirmas el pago de ${formatPrice(rental.totalPrice)} por ${rental.totalDays} día(s) de renta del vehículo ${rental.vehicleName}?`
-    );
+    // Simular validación del formulario
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    if (confirmPayment) {
-      // Aquí harías la llamada real al endpoint de pago
-      // Por ahora simularemos un pago exitoso
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simular delay del pago
-      
-      alert("¡Pago procesado exitosamente!");
-      
-      // Recargar las rentas para actualizar la lista
-      await fetchMyRentals();
-    }
+    // Llamar al endpoint real de pago
+    await rentalApiService.markRentalAsPaid(selectedRental.value.id);
+    
+    alert("¡Pago procesado exitosamente!");
+    
+    // Cerrar modal y recargar rentas
+    closePaymentModal();
+    await fetchMyRentals();
+    
   } catch (error) {
     console.error("Error procesando el pago:", error);
     alert("Error al procesar el pago. Intenta nuevamente.");
   } finally {
-    paymentProcessing.value.delete(rental.id);
+    paymentProcessing.value.delete(selectedRental.value.id);
   }
 };
 
@@ -392,6 +523,183 @@ onMounted(fetchMyRentals);
 }
 
 .pay-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal de Pago */
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.payment-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2e7d32;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px 24px 24px;
+}
+
+.payment-summary {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #ff9800;
+}
+
+.payment-summary h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.payment-summary p {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.total-amount {
+  font-size: 1.1rem !important;
+  color: #2e7d32 !important;
+  border-top: 1px solid #ddd;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff9800;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 12px 20px;
+  background: #f5f5f5;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #eeeeee;
+  border-color: #ccc;
+}
+
+.confirm-pay-btn {
+  flex: 2;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-pay-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f57c00, #ef6c00);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.confirm-pay-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
   transform: none;
