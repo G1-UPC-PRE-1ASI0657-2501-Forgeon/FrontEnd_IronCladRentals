@@ -17,6 +17,7 @@ import TheActiveRentPage from "@/pages/the-active-rent-page.vue";
 import TheVehicleRegister from './pages/the-vehicle-register.vue';
 import Arrendatario from './pages/Arrendatario.vue';
 import TheReservationsPage from './pages/the-reservations-page.vue';
+import TheCompanyVehicles from './pages/the-company-vehicles.vue';
 
 const routes = [
     { path: '/', component: TheMain },
@@ -24,6 +25,7 @@ const routes = [
     { path: '/register', component: TheRegister },
     { path: '/company-register', component: TheCompanyRegister },
     { path: '/vehicles/create', component: TheVehicleRegister },
+    { path: '/vehicles', component: TheCompanyVehicles },
     { path: '/landlord-vehicles', component: theLandlordVehicles },
     { path: '/landlord/vehicles/pricing/:vehicleId?', component: thePricingPage },
     { path: '/edit', component: thePricingPage },

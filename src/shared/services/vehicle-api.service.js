@@ -162,9 +162,26 @@ async create(vehicleData) {
             console.error("❌ Error obteniendo usuario:", error);
             throw error; // Lanza otros errores
         }  
-    }
+    },
 
-  
+  // 🔹 OBTENER VEHÍCULOS POR COMPAÑÍA
+  async getByCompanyId(companyId) {
+    try {
+      const response = await api.get(`/vehicle/company/${companyId}`);
+      const vehicles = response.data;
+
+      // Arregla las URLs de imagen
+      return vehicles.map(vehicle => ({
+        ...vehicle,
+        imageUrl: vehicle.imageUrl?.startsWith("http")
+          ? vehicle.imageUrl
+          : `${BASE_URL}${vehicle.imageUrl}`
+      }));
+    } catch (error) {
+      console.error("❌ Error obteniendo vehículos por compañía:", error);
+      throw error.response ? error.response.data : "Error de red o del servidor";
+    }
+  },
 };
 
 export default vehicleService;
